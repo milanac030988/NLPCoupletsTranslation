@@ -1,0 +1,173 @@
+import streamlit as st
+import os
+import sys
+import importlib
+import pkgutil
+from utils import Utils
+from features.translate.translation_method import TranslateMethod
+from features.evaluation import *
+from streamlit_server_state import server_state, server_state_lock
+
+# Cấu hình trang để sử dụng layout rộng
+st.set_page_config(layout="wide")
+
+# Tiêu đề của ứng dụng
+st.title("Dịch câu đối Hán Nôm")
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+def load_all_trans_supported_method():
+   all_libs = [TranslateMethod.SCRIPT_DIR]
+   # sys.path.extend(all_libs)
+   for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
+      # noinspection PyBroadException
+      try:
+         print(name)
+         if not is_pkg and not name.startswith("setup") and "translation_method" in name:
+            importlib.import_module("features.translate." + name)
+         elif "translation_method" in name:
+            _module = module_loader.find_module(name).load_module(name)
+      except Exception as _ex:
+         print(_ex)
+         pass
+
+   supported_translation_method_list = Utils.get_all_descendant_classes(TranslateMethod)
+      #   self.translation_methods = {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
+   return {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
+
+with server_state_lock["translation_methods"]:  # Lock the "count" state for thread-safety
+    if "translation_methods" not in server_state:
+        server_state.translation_methods = load_all_trans_supported_method()
+        print(f"translate method list: {server_state.translation_methods.keys()}")
+        server_state.translation_methods_instance = {}
+
+# Khởi tạo session state cho lựa chọn hiện tại nếu chưa có
+if 'current_method_instance' not in st.session_state:
+   st.session_state.current_method_instance = None
+
+if 'method_list' not in st.session_state:
+   st.session_state.method_list = server_state.translation_methods.keys()
+
+if 'translation_method_selected' not in st.session_state:
+   st.session_state.translation_method_selected = None
+
+if 'translation_method_selected_index' not in st.session_state:
+   st.session_state.translation_method_selected_index = 0
+
+def translate(han_sentence):
+   if st.session_state.current_method:
+        sv_translation = st.session_state.current_method.translate(han_sentence)#
+        sv_translation = Utils().extract_json(sv_translation)
+        # Xử lý xuống hàng và viết hoa đầu câu
+        sv_lines = sv_translation['sv'].split('\n')
+        sv_lines = [line.strip() for line in sv_lines]
+        formatted_sv_translation = '\n'.join(sv_lines)        
+        vi_lines = sv_translation['vi'].split('\n')
+        vi_lines = [line.strip() for line in vi_lines]
+        formatted_vi_translation = '\n'.join(vi_lines)
+
+
+# translation_methods = load_all_trans_supported_method()
+# print(f"translate method list: {translation_methods.keys()}")
+# translate_method_instance = {}
+
+
+    
+
+# translation_method = None
+def on_select_change():
+   method_name = st.session_state.translation_method_selected
+   if method_name in server_state.translation_methods:
+      with st.spinner(f'Đang cấu hình {method_name}...'):
+         # if method_name not in translate_method_instance:
+         #    translate_method_instance[method_name] = translation_methods[method_name]()
+         # current_translation_method = translate_method_instance[method_name]
+         if method_name not in server_state.translation_methods_instance:
+            with server_state_lock["select_translation_method"]:  
+               server_state.translation_methods_instance[method_name] = server_state.translation_methods[method_name]()
+
+         st.session_state.current_method_instance = server_state.translation_methods_instance[method_name]
+         if translation_method:
+            st.session_state.translation_method_selected_index = list(st.session_state.method_list).index(method_name)
+   # Thực hiện các hành động khác với giá trị đã chọn nếu cần
+   print(f"Phương pháp đã chọn: {method_name}")
+
+# Tạo 3 cột cho giao diện với tỷ lệ rộng bằng nhau
+col1, col2, col3 = st.columns([1, 0.2, 1])
+
+# Cột bên trái: text area để nhập câu cần dịch
+with col1:
+    input_text = st.text_area("Nhập câu cần dịch:")
+
+    st.write("Đánh giá mô hình:")
+    uploaded_file = st.file_uploader("Tải lên file CSV", type=["csv"])
+    def on_evaluate():
+      with st.spinner(f"Đang đánh giá {st.session_state.translation_method_selected}..."):
+         if df is not None:
+            evaluation_result, score = evaluate_translation_method(st.session_state.translation_method_selected, df)
+            st.write("Kết quả đánh giá mô hình:")
+            st.write(score)
+            
+    eval_button = st.button("Evaluate", key="eval_button", help="Nhấn để đánh giá phương pháp dịch", on_click=on_evaluate)
+
+# Cột giữa: combobox để lựa chọn phương pháp dịch và nút dịch
+with col2:
+    translation_method = st.selectbox(
+       "Chọn phương pháp dịch:",
+       st.session_state.method_list,#.extend(list(translation_methods.keys())),
+       key="translation_method_selected",
+       index=st.session_state.translation_method_selected_index,
+       help="Chọn phương pháp dịch",
+       on_change=on_select_change
+    )
+    st.write("")  # Thêm khoảng trống để nút dịch thẳng hàng với combobox
+    translate_button = st.button("Dịch", key="translate_button", help="Nhấn để dịch")
+
+# Cột bên phải: 2 read-only text area để hiển thị kết quả dịch
+with col3:
+    output_text1_placeholder = st.empty()
+    output_text2_placeholder = st.empty()
+
+
+
+
+# Khi nhấn nút "Dịch", thực hiện dịch và hiển thị kết quả
+if translate_button:     
+   if input_text:
+      formatted_sv_translation = ''
+      formatted_vi_translation = ''
+      if st.session_state.current_method_instance:
+         sv_translation = st.session_state.current_method_instance.translate(input_text)# + recognized_entities_json)
+         
+         sv_translation = Utils().extract_json(sv_translation)
+         
+         # Xử lý xuống hàng và viết hoa đầu câu
+         sv_lines = sv_translation['sv'].split('\n')
+         sv_lines = [line.strip() for line in sv_lines]
+         formatted_sv_translation = '\n'.join(sv_lines)        
+
+         vi_lines = sv_translation['vi'].split('\n')
+         vi_lines = [line.strip() for line in vi_lines]
+         formatted_vi_translation = '\n'.join(vi_lines)
+
+        # Cập nhật kết quả dịch vào text area
+      with col3:
+         output_text1_placeholder.text_area("Hán Việt", value=formatted_sv_translation, height=150, disabled=True)
+         output_text2_placeholder.text_area("Thuần Việt", value=formatted_vi_translation, height=150, disabled=True)
+
+
+df = None
+# Xử lý file CSV đã tải lên
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.write("Dữ liệu CSV đã tải lên:")
+    st.write(df)
+
+# if eval_button is not None:    
+#    #  # Thực hiện đánh giá mô hình
+#    with st.spinner(f"Đang đánh giá {st.session_state.translation_method_selected}..."):
+#       if df is not None:
+#          evaluation_result, score = evaluate_translation_method(st.session_state.translation_method_selected, df)
+#          st.write("Kết quả đánh giá mô hình:")
+#          st.write(score)
+
+
