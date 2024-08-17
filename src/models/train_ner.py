@@ -5,7 +5,7 @@ import random
 from spacy.util import minibatch, compounding
 
 # Đọc dữ liệu từ file JSON
-input_file_path = 'D:\\Document\\Master\\NLP\\Project\\data\\raw_data\\entities.json'  # Thay đổi đường dẫn tới file JSON của bạn
+input_file_path = 'D:\\Document\\Master\\NLP\\Project\\data\\raw_data\\entities.json'  
 with open(input_file_path, 'r', encoding='utf-8') as f:
     training_data = json.load(f)
 
