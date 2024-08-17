@@ -16,19 +16,39 @@ class RequestHandler:
       logger.info("RequestHandler started.")
       self.translation_methods = self.load_all_trans_supported_method()
       self.translation_method_instances = {}
+
+   def translate(self, han_sentence, trasnslation_method_name):
+      if trasnslation_method_name not in self.translation_method_instances:
+         self.translation_method_instances[trasnslation_method_name] = self.translation_methods[trasnslation_method_name]()
+      translation_method = self.translation_method_instances[trasnslation_method_name]
+      if translation_method:
+         sv_translation = translation_method.translate(han_sentence)#
+         sv_translation = Utils().extract_json(sv_translation)
+         # Xử lý xuống hàng và viết hoa đầu câu
+         sv_lines = sv_translation['sv'].split('\n')
+         sv_lines = [line.strip() for line in sv_lines]
+         formatted_sv_translation = '\n'.join(sv_lines)        
+         vi_lines = sv_translation['vi'].split('\n')
+         vi_lines = [line.strip() for line in vi_lines]
+         formatted_vi_translation = '\n'.join(vi_lines)
+         return formatted_sv_translation, formatted_vi_translation
    
-   def load_all_trans_supported_method(self):
+   def load_all_trans_supported_method():
       all_libs = [TranslateMethod.SCRIPT_DIR]
+      # sys.path.extend(all_libs)
       for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
          # noinspection PyBroadException
          try:
+            print(name)
             if not is_pkg and not name.startswith("setup") and "translation_method" in name:
-               importlib.import_module(name)
+               importlib.import_module("features.translate." + name)
             elif "translation_method" in name:
                _module = module_loader.find_module(name).load_module(name)
          except Exception as _ex:
+            print(_ex)
             pass
 
+   
    def stop(self):
       self.running = False
       logger.info("RequestHandler stopped.")
@@ -37,9 +57,10 @@ class RequestHandler:
       if not self.running:
          raise Exception("Handler is not running.")
       
-      # Giả sử có logic dịch ở đây
-      sv_translation = f"Translated_sv_{source}"
-      vi_translation = f"Translated_vi_{source}"
+      # sv_translation = f"Translated_sv_{source}"
+      # vi_translation = f"Translated_vi_{source}"
+      sv_translation , vi_translation = self.translate(source, method)     
+         
       logger.info(f"Translation requested: {source}, method: {method}")
       
       return {
