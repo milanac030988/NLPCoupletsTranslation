@@ -1,4 +1,4 @@
-from features.translate.translation_method import TranslateMethod
+from translation_method import TranslateMethod
 from transformers import MarianTokenizer, MarianMTModel, AutoModelForSeq2SeqLM, AutoTokenizer, AutoModelForMaskedLM
 import subprocess
 import sqlite3
@@ -12,12 +12,15 @@ class TranslateMethodTransformer(TranslateMethod):
    _TRANSLATION_METHOD = "Transformer"
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
    DICT_FILE_PATH = os.path.join(os.environ.get("REFS_DIR"), 'Hanzi2HanVietDB.db')
-   DEFAULT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer")
+   DEFAULT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer/opus-mt-zh-vi-fine_tuned_model")
 
    def __init__(self):
       self.model = MarianMTModel.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
       self.tokenizer = MarianTokenizer.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
-      self.tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
+      device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+      self.model.to(device)
+      self.model.eval()
+      # self.tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
    
    def __del__(self):
       self.quit()
@@ -84,32 +87,19 @@ class TranslateMethodTransformer(TranslateMethod):
       return re.sub(regex_pattern, ' ', text)
 
    def translate_vietnamese(self, han_sentence):
-      # print(f"input before:'{han_sentence}'")
-      # han_sentence = self.ensure_spaces_between_hanzi(han_sentence)
-      # print(f"input trans: {han_sentence}")
       han_sentences = han_sentence.split("\n")
       translated_text = ''
       for sentence in han_sentences:
-         # inputs = self.tokenizer(sentence, return_tensors="pt", padding=True, truncation=True)
-         # # Generate translation
-         # translated_tokens = self.model.generate(**inputs)
-         # translated_text = self.tokenizer.decode(translated_tokens[0], skip_special_tokens=True)         
-         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-         self.model.to(device)
-         self.model.eval()
          sentence = sentence.replace(' ','')
-         print(f"-> Câu Hán: {sentence}")
+         # print(f"-> Câu Hán: {sentence}")
          # Tokenize the input text
          inputs = self.tokenizer(sentence, return_tensors="pt", max_length=36, truncation=True).to(device)
          # Generate translation
-         translated_tokens = self.model.generate(**inputs)
-         
-         trans_setence = self.tokenizer_vi.decode(translated_tokens[0], skip_special_tokens=True)
-         print(f"   Dịch nghĩa: {trans_setence}")
+         translated_tokens = self.model.generate(**inputs)         
+         trans_setence = self.tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
+         # print(f"   Dịch nghĩa: {trans_setence}")
          translated_text += trans_setence
-         translated_text += "\n"
-
-            
+         translated_text += "\n"            
       return translated_text
 
    def quit(self):
@@ -119,29 +109,63 @@ class TranslateMethodTransformer(TranslateMethod):
 MODEL_NAME_TO_FINE_TUNE = "Helsinki-NLP/opus-mt-zh-vi"
 if __name__ == "__main__":
    # Load the fine-tuned model and tokenizer
-   model = AutoModelForSeq2SeqLM.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
-   tokenizer = AutoTokenizer.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
+   # model = AutoModelForSeq2SeqLM.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
+   # tokenizer = AutoTokenizer.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
 
-   # model_name = MODEL_NAME_TO_FINE_TUNE
-   # tokenizer = AutoTokenizer.from_pretrained(model_name)
-   # model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-   # from torchinfo import summary
-   # summary(model)
+   # # model_name = MODEL_NAME_TO_FINE_TUNE
+   # # tokenizer = AutoTokenizer.from_pretrained(model_name)
+   # # model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+   # # from torchinfo import summary
+   # # summary(model)
 
-   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-   model.to(device)
-   model.eval()
+   # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+   # model.to(device)
+   # model.eval()
 
    # Example input text
-   input_text = "天地英雄气"
+   input_text = "南天顯聖澤餘靈"
+   from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+   tokenizer = AutoTokenizer.from_pretrained("D:/Document/Master/NLP/FinalProject/models/transformer/opus-mt-zh-vi-fine_tuned_model2")
+   model = AutoModelForSeq2SeqLM.from_pretrained("D:/Document/Master/NLP/FinalProject/models/transformer/opus-mt-zh-vi-fine_tuned_model2")
+   tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
+# Add special tokens to the tokenizer
+   # tokenizer.add_special_tokens({'additional_special_tokens': ['[UNK]']})
+   # model.resize_token_embeddings(len(tokenizer))
+   
+   batch = tokenizer([input_text], truncation=True, return_tensors="pt", max_length=36)
+   print(batch['input_ids'][0])
+   tokens = tokenizer.convert_ids_to_tokens(batch['input_ids'][0])  # Convert token IDs to tokens
+   print("Token List:", tokens)
+#    # Remove the token immediately after [UNK]
+#    unk_index = tokens.index('[UNK]')
+#    underscore_index = tokens.index('▁')
+
+#    # Ensure `▁` is after `[UNK]` and then move it
+#    if underscore_index > unk_index:
+#       # Remove `▁` from its current position
+#       tokens.pop(underscore_index)
+#       # Insert `▁` before `[UNK]`
+#       tokens.insert(unk_index, '▁')
+
+# # Convert the filtered tokens back to IDs
+#    filtered_token_ids = tokenizer.convert_tokens_to_ids(tokens)
+#    print("filtered_tokens List:", filtered_token_ids)
+
+#    # Update the inputs to remove the token after [UNK]
+#    batch['input_ids'] = tokenizer.prepare_for_model(filtered_token_ids, return_tensors="pt")
+
+   generated_ids = model.generate(**batch)
+   test = tokenizer.decode(generated_ids[0], skip_special_tokens=False)
+   print(test)
 
    # Tokenize the input text
-   inputs = tokenizer(input_text, return_tensors="pt", max_length=36, truncation=True).to(device)
-   # print(f"Tokens with spaces: {tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])}")
+   # inputs = tokenizer(input_text, return_tensors="pt", max_length=36, truncation=True).to(device)
+   # # print(f"Tokens with spaces: {tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])}")
 
-   # Generate translation
-   translated_tokens = model.generate(**inputs)
-   tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
-   translated_text = tokenizer_vi.decode(translated_tokens[0], skip_special_tokens=True)
+   # # Generate translation
+   # translated_tokens = model.generate(**inputs)
+   # tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
+   # translated_text = tokenizer_vi.decode(translated_tokens[0], skip_special_tokens=True)
 
-   print("Translated text:", translated_text)
+   # print("Translated text:", translated_text)

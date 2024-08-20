@@ -13,8 +13,12 @@ from utils import *
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_NAME_TO_FINE_TUNE = "Helsinki-NLP/opus-mt-zh-vi"
-DEFAULT_OUPUT_MODEL_DIR = os.path.abspath(SCRIPT_DIR + "\\..\\output\\model\\transformer")
-DEFAULT_DATASET_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\output\\data\\dataset\\primary_couplets_dataset.csv")
+DEFAULT_OUPUT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer")
+
+DEFAULT_DATASET_PATH = f"{os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'train.csv')}, \
+                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'BinhNgoDaiCao.csv')}, \
+                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'HichTuongSi.csv')}, \
+                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'ChinhPhuNgam.csv')} "
 
 # Preprocess function to normalize text
 def preprocess_text(text):
@@ -30,8 +34,17 @@ def preprocess_text(text):
     return text
 
 def main(dataset_path, source_col, target_col, outdir, splits, train_args):
-    # Load the dataset
-    df = pd.read_csv(dataset_path, encoding='utf-8-sig')
+
+    df_list = []
+    inputs = dataset_path.split(',')
+    # Loop through each file and select only the 'a' and 'b' columns
+    for file in inputs:
+        df = pd.read_csv(file.strip(), usecols=['cn', 'vi'])  # Use usecols to select specific columns
+        df_list.append(df)
+
+    # Concatenate the DataFrames into one
+    df = pd.concat(df_list, ignore_index=True)
+
 
     # Split couplets into separate lines
     sources = []
@@ -48,47 +61,54 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
             # for vi_sentence in vi_lines:
                 vi_sentence = Utils.normalize_text(vi_sentence)
                 targets.append(vi_sentence)
-            cn_original.extend([row[source_col], ";Filled row;"])
-            vi_original.extend([row[target_col], ";Filled row;"])
+            # cn_original.extend([row[source_col], ";Filled row;"])
+            # vi_original.extend([row[target_col], ";Filled row;"])
 
     # Create a new DataFrame with separated lines
-    separated_df = pd.DataFrame({'cn': cn_original, 'vi': vi_original,'source': sources, 'target': targets})
+    separated_df = pd.DataFrame({'source': sources, 'target': targets})
 
     # Preprocess the data
     separated_df['source'] = separated_df['source'].apply(preprocess_text)
     separated_df['target'] = separated_df['target'].apply(preprocess_text)
 
-    # Split the dataset into train and validation sets
+    # # Split the dataset into train and validation sets
     train_df, test_df = train_test_split(separated_df, test_size=splits)
-    train_df_no_filled = train_df[train_df['cn'] != ";Filled row;"]
-    test_df_no_filled = test_df[test_df['vi'] != ";Filled row;"]
 
-    # Save the training and test sets to CSV files without ";Filled row;"
-    train_df_no_filled[['cn', 'vi']].to_csv(f'{outdir}/train.csv', index=False, encoding='utf-8-sig')
-    test_df_no_filled[['cn', 'vi']].to_csv(f'{outdir}/test.csv', index=False, encoding='utf-8-sig')
 
     # Convert the dataframes to Hugging Face datasets
     train_dataset = Dataset.from_pandas(train_df[['source', 'target']])
     test_dataset = Dataset.from_pandas(test_df[['source', 'target']])
-    dataset = DatasetDict({"train": train_dataset, "test": test_dataset})
+    print(f"Number of rows in the training dataset: {len(train_dataset)}")
+    print(f"Number of rows in the evaluation dataset: {len(test_dataset)}")
+    
+    # dataset = DatasetDict({"train": train_dataset, "test": test_dataset})
 
     # Load the tokenizer and model
     model_name = MODEL_NAME_TO_FINE_TUNE
     tokenizer = MarianTokenizer.from_pretrained(model_name)
     model = MarianMTModel.from_pretrained(model_name)
+    tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
 
     # Check if CUDA is available and move the model to GPU if possible
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
 
     # Preprocess the data for the model
+    # def preprocess_function(examples):
+    #     model_inputs = tokenizer(examples['source'], max_length=36, truncation=True, padding="max_length")
+    #     labels = tokenizer_vi(examples['target'], max_length=36, truncation=True, padding="max_length")
+    #     print(labels['input_ids'][0])
+    #     tokens = tokenizer_vi.convert_ids_to_tokens(labels['input_ids'][0])  # Convert token IDs to tokens
+    #     print("Token List:", tokens)
+    #     model_inputs["labels"] = labels["input_ids"]
+    #     return model_inputs
+    
     def preprocess_function(examples):
-        model_inputs = tokenizer(examples['source'], max_length=36, truncation=True, padding="max_length")
-        labels = tokenizer(examples['target'], max_length=36, truncation=True, padding="max_length")
-        model_inputs["labels"] = labels["input_ids"]
-        return model_inputs
+        return tokenizer(examples['source'], text_target=examples['target'], max_length=36, truncation=True, padding="max_length")
 
-    tokenized_datasets = dataset.map(preprocess_function, batched=True)
+    # tokenized_datasets = dataset.map(preprocess_function, batched=True)
+    tokenized_train_dataset = train_dataset.map(preprocess_function, batched=True)
+    tokenized_eval_dataset = test_dataset.map(preprocess_function, batched=True)
 
     # Define training arguments
     training_args = Seq2SeqTrainingArguments(
@@ -113,8 +133,8 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
-        train_dataset=tokenized_datasets["train"],
-        eval_dataset=tokenized_datasets["test"],
+        train_dataset=tokenized_train_dataset,
+        eval_dataset=tokenized_eval_dataset,
         data_collator=data_collator,
         tokenizer=tokenizer
     )
@@ -123,8 +143,8 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     trainer.train()
 
     # Save the model and tokenizer
-    model.save_pretrained(f"{outdir}/fine_tuned_model")
-    tokenizer.save_pretrained(f"{outdir}/fine_tuned_model")
+    model.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model2")
+    tokenizer.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model2")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fine-tune a MarianMT model on a custom dataset.')
@@ -137,7 +157,7 @@ if __name__ == "__main__":
     # Training arguments
     parser.add_argument('--output_dir', default=DEFAULT_OUPUT_MODEL_DIR + '/results', help='Output directory for results')
     parser.add_argument('--evaluation_strategy', default='epoch', help='Evaluation strategy')
-    parser.add_argument('--learning_rate', type=float, default=1e-5, help='Learning rate')
+    parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
     parser.add_argument('--per_device_train_batch_size', type=int, default=16, help='Batch size for training')
     parser.add_argument('--per_device_eval_batch_size', type=int, default=16, help='Batch size for evaluation')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay')

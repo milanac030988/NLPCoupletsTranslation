@@ -1,11 +1,19 @@
+import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from request_handler import handler_instance as handler  # Import instance
+from api.request_handler import handler_instance as handler  # Import instance
 
 app = FastAPI()
 
 translate_request_count = 0
 contribute_request_count = 0
+
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.getMessage().find("/request_stats") == -1
+
+# Filter out /endpoint
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
 class TranslateRequest(BaseModel):
    type: str

@@ -1,6 +1,8 @@
 import logging
+import os
 from features.translate.translation_method import TranslateMethod
 from utils import Utils
+
 
 # Thiết lập logging
 logging.basicConfig(level=logging.INFO)

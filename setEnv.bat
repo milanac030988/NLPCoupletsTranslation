@@ -7,4 +7,5 @@ set PROCESS_DATA_DIR=%SCRIPT_DIR%\data\processed
 set INTERMEDIATE_DATA_DIR=%SCRIPT_DIR%\data\interim
 set REFS_DIR=%SCRIPT_DIR%\references
 set MOSSES_DECODER=%SCRIPT_DIR%\references\mossesdecoder
+set MODELS_DIR=%SCRIPT_DIR%\models
 set PYTHON="%RobotPythonPath%"\python

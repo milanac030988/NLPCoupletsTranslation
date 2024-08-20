@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import threading
 import time
+import requests
 from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx, add_script_run_ctx
 # from translation_service import TranslationService
 from streamlit_server_state import server_state, server_state_lock
@@ -48,12 +49,16 @@ if 'service_status' not in st.session_state:
 def update_statistics():
    add_script_run_ctx(None, ctx)
    while True:
-        if 'service_status' in st.session_state and st.session_state.service_status == 'running':
-            st.session_state.statistics = f"""Service has been running for {time.strftime('%H:%M:%S', time.gmtime(time.time() - st.session_state.start_time))}
-Number of request: {server_state.translation_service.get_translate_req_count()}
-Number of contribute: {server_state.translation_service.get_contribute_req_count()}
+      if 'service_status' in st.session_state and st.session_state.service_status == 'running':
+            response = requests.get("http://127.0.0.1:8000/request_stats")
+            if response.status_code == 200:
+               data = response.json()
+               st.session_state.statistics = f"""Service has been running for {time.strftime('%H:%M:%S', time.gmtime(time.time() - st.session_state.start_time))}
+Number of request: {data['translate_request_count']}
+Number of contribute: {data['contribute_request_count']}
                                           """
-        time.sleep(1)
+               st.rerun()
+      time.sleep(1)
 
 # Start và Stop button với icon
 col1, col2 = st.columns([1, 1])
@@ -62,6 +67,7 @@ with col1:
    if start_button:
         st.session_state.start_time = time.time()
         start_service()
+        time.sleep(5)
         threading.Thread(target=update_statistics, daemon=True).start()
 
 with col2:

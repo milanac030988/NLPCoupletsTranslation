@@ -4,6 +4,8 @@ import os
 import sys
 import signal
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 class ServiceManager:
     def __init__(self):
         self.process = None
@@ -11,7 +13,7 @@ class ServiceManager:
     def start_server(self):
         if self.process is None:
             # Start the FastAPI server
-            self.process = subprocess.Popen([sys.executable, "service.py"])
+            self.process = subprocess.Popen(["uvicorn", "api.service:app", "--reload"])
             print("API server started.")
 
     def stop_server(self):
