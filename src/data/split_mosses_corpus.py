@@ -80,9 +80,9 @@ def main():
     # Read config file if present
     config = read_config()
     
-    if 'SETTINGS' in config:
-        input_file = config['SETTINGS'].get('input_file', input_file, vars=os.environ)
-        output_folder = config['SETTINGS'].get('output_folder', output_folder, vars=os.environ)
+    if 'split_corpus' in config:
+        input_file = config['split_corpus'].get('input_file', input_file, vars=os.environ)
+        output_folder = config['split_corpus'].get('output_folder', output_folder, vars=os.environ)
     
     # Override with command-line arguments if provided
     if args.input:

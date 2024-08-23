@@ -10,24 +10,24 @@ from pyvi import ViTokenizer
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE_PATH = os.path.join(SCRIPT_DIR, 'crawl_couplets_from_html.ini')
+CONFIG_FILE_PATH = os.path.join(SCRIPT_DIR, 'config.ini')
 
 def parse_config(file_path):
     config = configparser.ConfigParser()
     config.read(file_path)
     
     # Xử lý URL list để nối các dòng lại với nhau
-    url_list = config.get('settings', 'url_list').replace('\\\n', '').replace(' ', '').split(',')
+    url_list = config.get('crawl_html', 'url_list').replace('\\\n', '').replace(' ', '').split(',')
     
     return {
         'url_list': url_list,
-        'tag_id': config.get('settings', 'tag_id', fallback=None),
-        'structure': config.get('settings', 'structure'),
-        'filter': config.get('settings', 'filter', fallback=None),
-        'output_list': config.get('settings', 'output_list').split(','),
-        'skip_first_n': config.getint('settings', 'skip_first_n', fallback=0),
-        'skip_last_n': config.getint('settings', 'skip_last_n', fallback=0),
-        'max_blocks': config.getint('settings', 'max_blocks', fallback=None)
+        'tag_id': config.get('crawl_html', 'tag_id', fallback=None),
+        'structure': config.get('crawl_html', 'structure'),
+        'filter': config.get('crawl_html', 'filter', fallback=None),
+        'output_list': config.get('crawl_html', 'output_list').split(','),
+        'skip_first_n': config.getint('crawl_html', 'skip_first_n', fallback=0),
+        'skip_last_n': config.getint('crawl_html', 'skip_last_n', fallback=0),
+        'max_blocks': config.getint('crawl_html', 'max_blocks', fallback=None)
     }
 
 def parse_args():

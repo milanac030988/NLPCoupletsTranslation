@@ -72,8 +72,8 @@ def read_config(config_file='create_corpus.ini'):
     
     
     # Read values from the config file, with environment variables substituted
-    input_files = config.get('DEFAULT', 'input',  vars=os.environ)
-    output_file = config.get('DEFAULT', 'output',  vars=os.environ)
+    input_files = config.get('corpus', 'input',  vars=os.environ)
+    output_file = config.get('corpus', 'output',  vars=os.environ)
     
     return input_files, output_file
 

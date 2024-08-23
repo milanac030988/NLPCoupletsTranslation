@@ -21,7 +21,7 @@ def load_all_trans_supported_method():
    for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
       # noinspection PyBroadException
       try:
-         print(name)
+         # print(name)
          if not is_pkg and not name.startswith("setup") and "translation_method" in name:
             importlib.import_module("features.translate." + name)
          elif "translation_method" in name:
@@ -93,21 +93,26 @@ def on_select_change():
 
 # Tạo 3 cột cho giao diện với tỷ lệ rộng bằng nhau
 col1, col2, col3 = st.columns([1, 0.2, 1])
-
+if 'test_df' not in st.session_state:
+   # Initial dataset
+   st.session_state.test_df = None
 # Cột bên trái: text area để nhập câu cần dịch
 with col1:
-    input_text = st.text_area("Nhập câu cần dịch:")
+   input_text = st.text_area("Nhập câu cần dịch:")
 
-    st.write("Đánh giá mô hình:")
-    uploaded_file = st.file_uploader("Tải lên file CSV", type=["csv"])
-    def on_evaluate():
+   st.write("Đánh giá mô hình:")
+   uploaded_file = st.file_uploader("Tải lên file test data", type=["csv"])
+   def on_evaluate(columns):
       with st.spinner(f"Đang đánh giá {st.session_state.translation_method_selected}..."):
          if df is not None:
-            evaluation_result, score = evaluate_translation_method(st.session_state.translation_method_selected, df)
+            data, evaluation_result, score = evaluate_translation_method(st.session_state.translation_method_selected, df, columns)
+            st.session_state.test_df = pd.DataFrame(data, columns=['Nguồn', 'Đích', 'Bản dịch', 'BLEU score'])
             st.write("Kết quả đánh giá mô hình:")
-            st.write(score)
+            st.write(score)            
+            st.dataframe(st.session_state.test_df)
             
-    eval_button = st.button("Evaluate", key="eval_button", help="Nhấn để đánh giá phương pháp dịch", on_click=on_evaluate)
+   eval_button_sv = st.button("Evaluate dịch âm", key="eval_button_sv", help="Nhấn để đánh giá phương pháp dịch", on_click=lambda: on_evaluate(['cn', 'sv']))
+   eval_button_vi = st.button("Evaluate dịch nghĩa", key="eval_button_vi", help="Nhấn để đánh giá phương pháp dịch", on_click=lambda: on_evaluate(['cn', 'vi']))
 
 # Cột giữa: combobox để lựa chọn phương pháp dịch và nút dịch
 with col2:
@@ -161,13 +166,5 @@ if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
     st.write("Dữ liệu CSV đã tải lên:")
     st.write(df)
-
-# if eval_button is not None:    
-#    #  # Thực hiện đánh giá mô hình
-#    with st.spinner(f"Đang đánh giá {st.session_state.translation_method_selected}..."):
-#       if df is not None:
-#          evaluation_result, score = evaluate_translation_method(st.session_state.translation_method_selected, df)
-#          st.write("Kết quả đánh giá mô hình:")
-#          st.write(score)
 
 

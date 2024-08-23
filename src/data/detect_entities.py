@@ -6,8 +6,11 @@ import configparser
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_MAIN_DATASET_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\..\\output\\data\\dataset\\primary_couplets_dataset.csv") + ", D:\\Document\\Master\\NLP\\Project\\data\\raw_data\\data\\NomNaNMT.csv"
-DEFAULT_ENTITIES_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\..\\output\\data\\dataset\\entities.csv")
+DEFAULT_CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.ini")
+DEFAULT_MAIN_DATASET_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\..\\data\\processed\\primary_couplets_dataset.csv") + "," +\
+                            os.path.abspath(SCRIPT_DIR + "\\..\\..\\data\\raw\\DaiVietSuKyToanThu.csv")
+DEFAULT_ENTITIES_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\..\\data\\interim\\entities.csv")
+DEFAULT_ENTITIES_DICT_PATH = os.path.abspath(SCRIPT_DIR + "\\..\\..\\data\\interim\\entities_dict.csv")
 
 # Hàm làm sạch văn bản, loại bỏ các ký tự đặc biệt
 def clean_text(text):
@@ -82,7 +85,7 @@ def find_entities(text):
 
     return temp_entities
 
-def main(input_file, output_file):
+def main(input_file, output_file, dict_file):
     filelist = input_file.split(",")
     # Initialize an empty list to store DataFrames
     df_list = []
@@ -97,6 +100,7 @@ def main(input_file, output_file):
     # df = pd.read_csv(input_file)
     # Tạo dataframe mới
     data = []
+    data_dict = []
     for index, row in df.iterrows():
         cn_sentences = row['cn'].split('\n')
         sv_sentences = clean_text(row['sv']).split('\n')
@@ -110,42 +114,54 @@ def main(input_file, output_file):
                     entity_str = ', '.join([entity[0] for entity in entities])
                     positions_str = ', '.join([f"({entity[1]}: {entity[2]})" for entity in entities])
                     data.append([cn, sv, positions_str, entity_str, ""])
+                    for entity in entities:
+                        cn_sentence = cn.replace(" ",'')
+                        if cn_sentence[entity[1]:entity[2]]:
+                            data_dict.append([cn_sentence[entity[1]:entity[2]], entity[0], entity[0]])
         else:
             print(f"Warning: Mismatch in the number of sentences for row {index}")
 
     new_df = pd.DataFrame(data, columns=['cn', 'sv', 'entity_position', 'entities', 'entity_type'])
+    new_df_dict = pd.DataFrame(data_dict, columns=['cn', 'sv', 'vi'])
 
     # Xuất ra file CSV mới
     new_df.to_csv(output_file, index=False, encoding='utf-8-sig')
+    new_df_dict.to_csv(dict_file, index=False, encoding='utf-8-sig')
+    
 
     print("File CSV mới đã được tạo thành công.")
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Detect các entities trong câu đối.')
     parser.add_argument('-i', '--input', default=DEFAULT_MAIN_DATASET_PATH, help='Đường dẫn đến file CSV đầu vào.')
-    parser.add_argument('-o', '--output', default=DEFAULT_ENTITIES_PATH, help='Đường dẫn đến file CSV đầu re.')
+    parser.add_argument('-o', '--output', default=DEFAULT_ENTITIES_PATH, help='Đường dẫn đến file CSV đầu ra.')
+    parser.add_argument('-d', '--dict', default=DEFAULT_ENTITIES_DICT_PATH, help='Đường dẫn đến file dictionary đầu ra.')
     return parser.parse_args()
 
-def read_config(config_file='split_mosses_corpus.ini'):
+def read_config(config_file=DEFAULT_CONFIG_FILE):
     config = configparser.ConfigParser(os.environ, interpolation=configparser.ExtendedInterpolation())
     config.read(config_file)
     return config
 
 if __name__ == "__main__":
     args = parse_arguments()
-    Input = DEFAULT_MAIN_DATASET_PATH
-    Output = DEFAULT_ENTITIES_PATH
+    input_file = DEFAULT_MAIN_DATASET_PATH
+    output_file = DEFAULT_ENTITIES_PATH
+    output_dict = DEFAULT_ENTITIES_DICT_PATH
 
     config = read_config()
     
-    if 'SETTINGS' in config:
-        Input = config['SETTINGS'].get('input', input_file, vars=os.environ)
-        Output = config['SETTINGS'].get('output', output_folder, vars=os.environ)
+    if 'entities' in config:
+        input_file = config['entities'].get('input', input_file, vars=os.environ)
+        output_file = config['entities'].get('output', output_file, vars=os.environ)
+        output_dict = config['entities'].get('output_dict', output_dict, vars=os.environ)
     
     # Override with command-line arguments if provided
     if args.input:
-        Input = args.input
+        input_file = args.input
     if args.output:
-        Output = args.output
+        output_file = args.output
+    if args.dict:
+        output_dict = args.dict
 
-    main(args.input, args.output)
+    main(input_file, output_file, output_dict)

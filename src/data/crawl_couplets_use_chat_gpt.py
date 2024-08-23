@@ -31,25 +31,6 @@ def extract_text_between_patterns(text, start_pattern, end_pattern):
     concatenated_text = '\n'.join(match.strip() for match in matches)
     return concatenated_text
 
-# RANGE = 2
-# START = 0
-
-# for i in range(START, len(images), RANGE):
-#    upload_img_paths = []
-#    for j in range(RANGE):
-#       if i + j < len(images):
-#          image_path = images[i + j]
-#          upload_img_paths.append(image_path)
-   
-#    fake_api.upload_file(upload_img_paths)
-#    extracted_text = fake_api.send_request(f"Đánh số trang bắt đầu từ Trang {i + 431}")
-#    if not extracted_text:
-#       print(f"Failed to extract image from {i} to {i + j}")
-#       raise Exception("Interupt")
-#    extracted_text = extract_text_between_patterns(extracted_text, start_pattern, end_pattern)
-#    with open(output_file, "a", encoding="utf-8") as f:
-#       f.write(extracted_text + "\n\n")
-
 def parse_arguments():
    parser = argparse.ArgumentParser(description='Thu thập ngữ liệu sử dụng FakeChatGPTAPI.')
    parser.add_argument('-i', '--images_folder', type=str, help='Thư mục chứa ảnh cần trích xuất ngữ liệu.')
@@ -106,12 +87,12 @@ def main():
    # Read config file if present
    config = read_config()
     
-   if 'SETTINGS' in config:
-      images_folder = config['SETTINGS'].get('images_folder', images_folder, vars=os.environ)
-      outfile = config['SETTINGS'].get('outfile', outfile, vars=os.environ)
-      START = config['SETTINGS'].getint('start', START, vars=os.environ)
-      GAP = config['SETTINGS'].getint('gap', GAP, vars=os.environ)
-      RANGE = config['SETTINGS'].getint('range', RANGE, vars=os.environ)
+   if 'crawl_couplets_gpt' in config:
+      images_folder = config['crawl_couplets_gpt'].get('images_folder', images_folder, vars=os.environ)
+      outfile = config['crawl_couplets_gpt'].get('outfile', outfile, vars=os.environ)
+      START = config['crawl_couplets_gpt'].getint('start', START, vars=os.environ)
+      GAP = config['crawl_couplets_gpt'].getint('gap', GAP, vars=os.environ)
+      RANGE = config['crawl_couplets_gpt'].getint('range', RANGE, vars=os.environ)
     
     # Override with command-line arguments if provided
    if args.images_folder:

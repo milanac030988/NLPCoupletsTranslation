@@ -16,6 +16,7 @@ MODEL_NAME_TO_FINE_TUNE = "Helsinki-NLP/opus-mt-zh-vi"
 DEFAULT_OUPUT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer")
 
 DEFAULT_DATASET_PATH = f"{os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'train.csv')}, \
+                         {os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'entities_dict.csv')}, \
                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'BinhNgoDaiCao.csv')}, \
                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'HichTuongSi.csv')}, \
                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'ChinhPhuNgam.csv')} "
@@ -52,6 +53,7 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     cn_original = []
     vi_original = []
     for _, row in df.iterrows():
+        # print(row)
         cn_lines = row[source_col].split('\n')
         vi_lines = row[target_col].split('\n')
         if len(cn_lines) == len(vi_lines):
@@ -89,6 +91,7 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     model = MarianMTModel.from_pretrained(model_name)
     tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
 
+    print(f"Use GPU: {torch.cuda.is_available()}")
     # Check if CUDA is available and move the model to GPU if possible
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)

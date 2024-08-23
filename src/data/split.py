@@ -27,13 +27,13 @@ def main():
     # Read config file if present
     config = read_config()
     
-    if 'SETTINGS' in config:
-        print('SETTINGS')
-        input_file = config['SETTINGS'].get('input_file', input_file, vars=os.environ)
+    if 'split_data' in config:
+        print('split_data')
+        input_file = config['split_data'].get('input_file', input_file, vars=os.environ)
         print(">>>" + input_file)
-        output_dir = config['SETTINGS'].get('output', output_dir, vars=os.environ)
+        output_dir = config['split_data'].get('output', output_dir, vars=os.environ)
         print(">>>" +output_dir)
-        ratio = config['SETTINGS'].getfloat('ratio', ratio)
+        ratio = config['split_data'].getfloat('ratio', ratio)
     
     print(output_dir)
     # Override with command-line arguments if provided
