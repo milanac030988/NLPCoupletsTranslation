@@ -112,7 +112,7 @@ def evaluate_translation_method(method, data, columns):
         if method == 'Moses':
             preprocess_text = ensure_spaces_between_hanzi(source)
         else:
-            preprocess_text = remove_spaces(source)
+            preprocess_text = source
         translated_text = remove_punctuation(translate_dict[columns[1]](preprocess_text))
         hypotheses.append(translated_text.split())
         origin_scrs.append(source)
