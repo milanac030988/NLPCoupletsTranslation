@@ -6,7 +6,7 @@ Chào mừng bạn đến với dự án "Ứng dụng dịch hoành phi câu đ
 
 ## Tính năng
 
-1. **Dịch âm:** Chuyển đổi các ký tự Hán Nôm sang âm đọc chữ Quốc ngữ, giúp người dùng dễ dàng hiểu được cách phát âm của các câu đối.
+1. **Dịch âm:** Dịch chữ Hán sang âm Hán Việt.
 
 2. **Dịch nghĩa:** Cung cấp bản dịch nghĩa của các câu đối, giúp người dùng nắm bắt nội dung và ý nghĩa sâu sắc ẩn chứa trong từng câu chữ.
 
