@@ -32,8 +32,8 @@ class TranslateMethodMoses(TranslateMethod):
          self.moses_sv_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_SV)}', encoding="utf-8")
          self.moses_vi_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_VI)}', encoding="utf-8")         
       elif current_os == "Linux":
-         self.moses_sv_process =  pexpect.spawn(f'{self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_SV)}', encoding="utf-8")
-         self.moses_vi_process =  pexpect.spawn(f'{self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_VI)}', encoding="utf-8")
+         self.moses_sv_process =  pexpect.spawn(f'{TranslateMethodMoses.MOSES_BIN} -f {TranslateMethodMoses.MOSES_MODEL_SV}', encoding="utf-8")
+         self.moses_vi_process =  pexpect.spawn(f'{TranslateMethodMoses.MOSES_BIN} -f {TranslateMethodMoses.MOSES_MODEL_VI}', encoding="utf-8")
 
    def extract_translation(self, text):
       # Biểu thức chính quy để trích xuất văn bản giữa "BEST TRANSLATION:" và "[" với dãy số bên trong
