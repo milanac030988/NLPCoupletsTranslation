@@ -13,7 +13,7 @@ from streamlit_server_state import server_state, server_state_lock
 st.set_page_config(layout="wide")
 
 # Tiêu đề của ứng dụng
-st.title("Dịch câu đối Hán Nôm")
+st.title("Dịch câu đối Hán sang chữ Quốc ngữ hiện đại")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # def load_all_trans_supported_method():

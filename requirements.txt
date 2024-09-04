@@ -18,7 +18,7 @@ sentencepiece==0.2.0
 selenium==4.23.1
 setuptools==69.0.2
 stqdm==0.0.5
-streamlit==1.37.0
+streamlit==1.37.1
 streamlit-server-state==0.17.1
 streamlit-autorefresh
 streamlit-authenticator
