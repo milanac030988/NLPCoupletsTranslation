@@ -7,7 +7,7 @@ pages = {
          st.Page('page/translation_page.py', title='Dịch câu đối online', icon=':material/translate:'),
       ],
       'Quản lý service' : [
-         st.Page('page/test.py', title='Translation service', icon=':material/manage_accounts:'),
+         st.Page('page/service_page.py', title='Translation service', icon=':material/manage_accounts:'),
       ],
 }
 
