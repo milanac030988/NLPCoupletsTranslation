@@ -1,3 +1,18 @@
+# *******************************************************************************
+#
+# File: translation_method_moses.py
+#
+# Initially created by Nguyen Huynh Tri Cuong / Aug 2024
+#
+# Description:
+#   Implementation cho phương thức dịch sử dụng mô hình Moses.
+#
+# History:
+#
+# 01.08.2024 / V 0.1 / Nguyen Huynh Tri Cuong
+# - Khởi tạo
+#
+# *******************************************************************************
 from features.translate.translation_method import TranslateMethod
 from utils import Utils
 import subprocess
@@ -12,7 +27,15 @@ import pexpect
 
 
 class TranslateMethodMoses(TranslateMethod):
+   """
+   Class: TranslateMethodMoses
 
+   Description:
+      Implementation của lớp TranslateMethod cho phương thức dịch sử dụng mô hình Moses.
+      Lớp này kế thừa từ lớp cơ bản TranslateMethod và cung cấp việc triển khai cụ thể cho phương thức
+      dịch sử dụng mô hình Moses. Bằng cách override các phương thức cần thiết như `translate` và `quit`,
+      phương thức dịch sẽ được tích hợp vào GUI của application.
+   """
    _TRANSLATION_METHOD = "Moses"
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
    DICT_FILE_PATH = os.path.join(os.environ.get("REFS_DIR"), 'Hanzi2HanVietDB.db')
@@ -27,15 +50,38 @@ class TranslateMethodMoses(TranslateMethod):
       self.create_moses_process()
 
    def create_moses_process(self):
+      """
+      Tạo và khởi chạy tiến trình Moses để thực hiện dịch thuật.
+
+      Tham số:
+      None
+
+      Trả về:
+      None
+      """
       current_os = platform.system()
       if current_os == "Windows":
-         self.moses_sv_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_SV)}', encoding="utf-8")
-         self.moses_vi_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} -f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_VI)}', encoding="utf-8")         
+         Utils.make_executable_wsl(self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN))
+         self.moses_sv_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} ' \
+                                                 '-f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_SV)}', encoding="utf-8")
+         self.moses_vi_process =  wexpect.spawn(f'wsl.exe {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_BIN)} '
+                                                 '-f {self._windows_to_wsl_path(TranslateMethodMoses.MOSES_MODEL_VI)}', encoding="utf-8")         
       elif current_os == "Linux":
+         Utils.make_executable(TranslateMethodMoses.MOSES_BIN)
          self.moses_sv_process =  pexpect.spawn(f'{TranslateMethodMoses.MOSES_BIN} -f {TranslateMethodMoses.MOSES_MODEL_SV}', encoding="utf-8")
          self.moses_vi_process =  pexpect.spawn(f'{TranslateMethodMoses.MOSES_BIN} -f {TranslateMethodMoses.MOSES_MODEL_VI}', encoding="utf-8")
 
    def extract_translation(self, text):
+      """
+      Trích xuất phần dịch tốt nhất từ đầu ra của mô hình Moses.
+
+      Tham số:
+      text (str): Đoạn văn bản đầu ra của mô hình Moses chứa kết quả dịch.
+
+      Trả về:
+      str: Văn bản đã được trích xuất từ phần "BEST TRANSLATION", nếu có. 
+      None: Nếu không tìm thấy phần dịch phù hợp.
+      """
       # Biểu thức chính quy để trích xuất văn bản giữa "BEST TRANSLATION:" và "[" với dãy số bên trong
       match = re.search(r'BEST TRANSLATION:\s*(.*?)\s*\[\d+\]', text, re.DOTALL|re.MULTILINE)
       
@@ -46,6 +92,18 @@ class TranslateMethodMoses(TranslateMethod):
          return None
    
    def __del__(self):
+      """
+      Destructor của lớp, được gọi khi đối tượng bị xóa.
+
+      Phương thức này đảm bảo rằng tất cả các tài nguyên liên quan đến tiến trình dịch 
+      (như tiến trình Moses) được giải phóng một cách an toàn khi đối tượng bị hủy.
+
+      Tham số:
+      None
+
+      Trả về:
+      None
+      """
       if self.moses_sv_process:
          self.moses_sv_process.terminate()
 
@@ -54,6 +112,18 @@ class TranslateMethodMoses(TranslateMethod):
       self.quit()
 
    def translate(self, han_sentence):
+      """
+      Dịch một câu Hán tự sang âm Hán Việt và dịch nghĩa thuần Việt.
+
+      Phương thức này nhận vào một câu Hán tự, sử dụng hai phương thức khác nhau để dịch sang
+      âm Hán Việt và dịch nghĩa thuần Việt. Sau đó, kết hợp kết quả thành một đối tượng JSON.
+
+      Tham số:
+      han_sentence (str): Câu Hán tự cần được dịch.
+
+      Trả về:
+      str: Chuỗi JSON chứa câu gốc (cn), câu âm Hán Việt (sv), và câu dịch nghĩa thuần Việt (vi).
+      """
       hanviet_sentence = self.translate_hanviet(han_sentence)
       vietnamese_sentence = self.translate_vietnamese(han_sentence)
       response = {
@@ -67,9 +137,34 @@ class TranslateMethodMoses(TranslateMethod):
       return json.dumps(response)
 
    def remove_spaces(self, text):
+      """
+      Loại bỏ tất cả khoảng trắng giữa các ký tự trong một chuỗi văn bản.
+
+      Phương thức này sử dụng biểu thức chính quy để loại bỏ mọi khoảng trắng thừa (bao gồm cả
+      khoảng trắng, tab, và dòng mới) trong chuỗi văn bản được cung cấp.
+
+      Tham số:
+      text (str): Chuỗi văn bản cần loại bỏ khoảng trắng.
+
+      Trả về:
+      str: Chuỗi văn bản đã được loại bỏ tất cả khoảng trắng.
+      """
       return re.sub(r'\s+', '', text)
 
    def _windows_to_wsl_path(self, windows_path):
+      """
+      Chuyển đổi đường dẫn Windows sang đường dẫn WSL (Windows Subsystem for Linux).
+
+      Phương thức này chuyển đổi một đường dẫn Windows sang định dạng tương thích với WSL
+      bằng cách thay thế các dấu gạch chéo ngược bằng gạch chéo xuôi và thay đổi ký tự ổ đĩa 
+      thành định dạng WSL (ví dụ: C:\ -> /mnt/c/).
+
+      Tham số:
+      windows_path (str): Đường dẫn Windows cần chuyển đổi.
+
+      Trả về:
+      str: Đường dẫn đã được chuyển đổi sang định dạng WSL.
+      """
       # Replace backslashes with forward slashes
       wsl_path = windows_path.replace("\\", "/")
       
@@ -81,6 +176,19 @@ class TranslateMethodMoses(TranslateMethod):
       return wsl_path
 
    def _translate_use_moses(self, han_sentence, moses_process):
+      """
+      Dịch một câu Hán tự sử dụng tiến trình Moses.
+
+      Phương thức này nhận vào một câu Hán tự và một tiến trình Moses đã khởi chạy, 
+      sau đó gửi câu Hán tự tới tiến trình Moses để dịch và nhận về kết quả.
+
+      Tham số:
+      han_sentence (str): Câu Hán tự cần được dịch.
+      moses_process (subprocess.Popen): Tiến trình Moses đã được khởi tạo để thực hiện dịch thuật.
+
+      Trả về:
+      str: Kết quả dịch từ tiến trình Moses.
+      """
       # print(f"input before:'{han_sentence}'")
       han_sentence = self.ensure_spaces_between_hanzi(han_sentence)
       han_sentences = han_sentence.split("\n")
@@ -104,17 +212,6 @@ class TranslateMethodMoses(TranslateMethod):
                translated_sentence = ''
                print(sentence)
 
-            # Lọc và lấy câu dịch từ các dòng trả về
-            # translated_sentence = None
-            # lines = output.splitlines()
-            # for line in lines:
-            #    if "BEST TRANSLATION:" in line:
-            #       # translated_sentence = line.split(":", 1)[1].split("[")[0].strip()
-            #       translated_sentence =  self.extract_translation(line)
-            #       # Loại bỏ các phần |UNK|UNK|UNK nếu có
-            #       translated_sentence = translated_sentence.replace("|UNK|UNK|UNK", "").strip()
-            #       break
-
             translated_text += translated_sentence
             translated_text += "\n"
          
@@ -126,6 +223,19 @@ class TranslateMethodMoses(TranslateMethod):
       return translated_text
 
    def translate_chinese_in_sentence(self, sentence):
+      """
+      Dịch các ký tự tiếng Trung trong một câu.
+
+      Phương thức này duyệt qua từng ký tự trong câu đầu vào, kiểm tra xem ký tự đó có phải
+      là ký tự tiếng Trung hay không. Nếu có, ký tự sẽ được dịch và thay thế bằng nghĩa tiếng Việt;
+      nếu không, ký tự được giữ nguyên.
+
+      Tham số:
+      sentence (str): Câu cần kiểm tra và dịch các ký tự tiếng Trung.
+
+      Trả về:
+      str: Câu đã được dịch các ký tự tiếng Trung, trong khi các ký tự khác được giữ nguyên.
+      """
       translated_sentence = ""
       for char in sentence:
          if Utils.is_chinese_char(char):
@@ -137,6 +247,18 @@ class TranslateMethodMoses(TranslateMethod):
       return translated_sentence
    
    def translate_chinese_char(self, hanzi):
+      """
+      Dịch một ký tự tiếng Trung sang âm Hán Việt hoặc nghĩa tương ứng từ cơ sở dữ liệu.
+
+      Phương thức này kết nối tới cơ sở dữ liệu và tra cứu ký tự tiếng Trung đã cho trong bảng `translations`.
+      Nếu tìm thấy bản dịch tương ứng (âm Hán Việt hoặc nghĩa), trả về bản dịch đó; nếu không, trả về ký tự gốc.
+
+      Tham số:
+      hanzi (str): Ký tự tiếng Trung cần dịch.
+
+      Trả về:
+      str: Âm Hán Việt hoặc nghĩa của ký tự tiếng Trung, hoặc ký tự gốc nếu không tìm thấy bản dịch.
+      """
       trans = hanzi
       conn = sqlite3.connect(TranslateMethodMoses.DICT_FILE_PATH) 
       c = conn.cursor()
@@ -147,29 +269,35 @@ class TranslateMethodMoses(TranslateMethod):
       conn.close()
       return trans
 
-   # def translate_hanviet(self, han_sentence):     
-   #    conn = sqlite3.connect(TranslateMethodMoses.DICT_FILE_PATH) 
-   #    c = conn.cursor()
-   #    viet_translation = []
-   #    for hanzi in han_sentence:
-   #       if hanzi == "\n":
-   #             viet_translation.append(';\n')
-   #       else:
-   #             c.execute('SELECT sv FROM translations WHERE cn=?', (hanzi,))
-   #             result = c.fetchone()
-   #             if result:
-   #                viet_translation.append(result[0])
-   #             # else:
-   #             #    viet_translation.append('[UNKNOWN]')
-   #    if viet_translation[-1] != ".":
-   #       viet_translation.append(".")
-
-   #    return Utils.capitalize_after_newline(' '.join(viet_translation))
    def translate_hanviet(self, han_sentence):
+      """
+      Dịch một câu Hán tự sang âm Hán Việt sử dụng mô hình Moses.
+
+      Phương thức này nhận vào một câu Hán tự và sử dụng tiến trình Moses đã khởi tạo cho
+      âm Hán Việt để thực hiện dịch thuật. Kết quả dịch được trả về dưới dạng văn bản.
+
+      Tham số:
+      han_sentence (str): Câu Hán tự cần được dịch sang âm Hán Việt.
+
+      Trả về:
+      str: Câu đã được dịch sang âm Hán Việt.
+      """
       translated_text = self._translate_use_moses(han_sentence, self.moses_sv_process)
       return translated_text
 
    def translate_vietnamese(self, han_sentence):
+      """
+      Dịch một câu Hán tự sang tiếng Việt sử dụng mô hình Moses.
+
+      Phương thức này nhận vào một câu Hán tự và sử dụng tiến trình Moses đã khởi tạo cho
+      tiếng Việt để thực hiện dịch thuật. Kết quả dịch được trả về dưới dạng văn bản.
+
+      Tham số:
+      han_sentence (str): Câu Hán tự cần được dịch sang tiếng Việt.
+
+      Trả về:
+      str: Câu đã được dịch sang tiếng Việt.
+      """
       translated_text = self._translate_use_moses(han_sentence, self.moses_vi_process)
       return translated_text
 
@@ -205,26 +333,26 @@ class TranslateMethodMoses(TranslateMethod):
       return re.sub(regex_pattern, ' ', text)
 
    def delete_file(self, file_path):
-    try:
-        os.remove(file_path)
-        print(f"File {file_path} has been deleted.")
-    except FileNotFoundError:
-        print(f"File {file_path} not found.")
-    except PermissionError:
-        print(f"Permission denied: cannot delete {file_path}.")
-    except Exception as e:
-        print(f"An error occurred while deleting the file: {e}")
+      try:
+          os.remove(file_path)
+          print(f"File {file_path} has been deleted.")
+      except FileNotFoundError:
+          print(f"File {file_path} not found.")
+      except PermissionError:
+          print(f"Permission denied: cannot delete {file_path}.")
+      except Exception as e:
+          print(f"An error occurred while deleting the file: {e}")
 
    def create_file_with_uuid(self):
-    # Tạo một UUID ngẫu nhiên
-    unique_filename = str(uuid.uuid4()) + ".txt"
-    
-    # Tạo file với tên UUID
-    with open(unique_filename, 'w') as file:
-        file.write("This is a file with a UUID name.")
-    
-    print(f"File created: {unique_filename}")
-    return unique_filename
+      # Tạo một UUID ngẫu nhiên
+      unique_filename = str(uuid.uuid4()) + ".txt"
+      
+      # Tạo file với tên UUID
+      with open(unique_filename, 'w') as file:
+          file.write("This is a file with a UUID name.")
+      
+      print(f"File created: {unique_filename}")
+      return unique_filename
   
 
    def quit(self):

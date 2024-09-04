@@ -18,6 +18,7 @@ import importlib
 import pkgutil
 from utils import Utils
 from features.translate.translation_method import TranslateMethod
+from features.translate.translation_manager import TranslationManager
 from nltk.translate.bleu_score import sentence_bleu, corpus_bleu, SmoothingFunction
 from stqdm import stqdm
 
@@ -27,22 +28,24 @@ DEFAULT_TEST_FILE_PATH = os.path.abspath(SCRIPT_DIR + "/../../data/interim/test.
 DEFAULT_MODEL = "Transformer"
 DEFAULT_COLUMNS = "cn,vi"
 
-def load_all_trans_supported_method():
-    all_libs = [TranslateMethod.SCRIPT_DIR]
-    for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
-        # noinspection PyBroadException
-        try:
-            # print(name)
-            if not is_pkg and not name.startswith("setup") and "translation_method" in name:
-                importlib.import_module("features.translate." + name)
-            elif "translation_method" in name:
-                _module = module_loader.find_module(name).load_module(name)
-        except Exception as _ex:
-            # print(_ex)
-            pass
+trans_manager = TranslationManager()
 
-    supported_translation_method_list = Utils.get_all_descendant_classes(TranslateMethod)
-    return {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
+# def load_all_trans_supported_method():
+#     all_libs = [TranslateMethod.SCRIPT_DIR]
+#     for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
+#         # noinspection PyBroadException
+#         try:
+#             # print(name)
+#             if not is_pkg and not name.startswith("setup") and "translation_method" in name:
+#                 importlib.import_module("features.translate." + name)
+#             elif "translation_method" in name:
+#                 _module = module_loader.find_module(name).load_module(name)
+#         except Exception as _ex:
+#             # print(_ex)
+#             pass
+
+#     supported_translation_method_list = Utils.get_all_descendant_classes(TranslateMethod)
+#     return {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
 
 def ensure_spaces_between_hanzi(text):
     """
@@ -86,14 +89,15 @@ def evaluate_translation_method(method, data, columns):
     if isinstance(data, str):
         data = pd.read_csv(data, usecols=columns) 
     # Dictionary chứa các phương pháp dịch
-    translation_methods = load_all_trans_supported_method()
+    # translation_methods = load_all_trans_supported_method()
 
     # Kiểm tra phương pháp dịch được chọn
-    if method not in translation_methods:
+    if method not in trans_manager.get_supported_method_names():
         raise ValueError(f"Unknown translation method: {method}")
 
     # Lấy phương pháp dịch được chọn
-    translate = translation_methods[method]()
+    # translate = translation_methods[method]()
+    translate = trans_manager.get_translation_method(method)
 
     # Tạo danh sách các câu cần dịch và các bản dịch tham khảo
     sources = data[columns[0]].tolist()

@@ -1,6 +1,6 @@
 import logging
 import os
-from features.translate.translation_method import TranslateMethod
+from features.translate.translation_manager import TranslationManager
 from utils import Utils
 
 
@@ -11,18 +11,20 @@ logger = logging.getLogger(__name__)
 class RequestHandler:
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
    def __init__(self):
-      self.running = False
+      self.running = True
+      self.translation_manager = TranslationManager()
 
    def start(self):
       self.running = True
       logger.info("RequestHandler started.")
-      self.translation_methods = self.load_all_trans_supported_method()
-      self.translation_method_instances = {}
+      # self.translation_methods = self.load_all_trans_supported_method()
+      # self.translation_method_instances = {}
+      self.translation_manager = TranslationManager()
 
    def translate(self, han_sentence, trasnslation_method_name):
-      if trasnslation_method_name not in self.translation_method_instances:
-         self.translation_method_instances[trasnslation_method_name] = self.translation_methods[trasnslation_method_name]()
-      translation_method = self.translation_method_instances[trasnslation_method_name]
+      # if trasnslation_method_name not in self.translation_method_instances:
+      #    self.translation_method_instances[trasnslation_method_name] = self.translation_methods[trasnslation_method_name]()
+      translation_method = self.translation_manager.get_translation_method(trasnslation_method_name)
       if translation_method:
          sv_translation = translation_method.translate(han_sentence)#
          sv_translation = Utils().extract_json(sv_translation)
@@ -35,20 +37,20 @@ class RequestHandler:
          formatted_vi_translation = '\n'.join(vi_lines)
          return formatted_sv_translation, formatted_vi_translation
    
-   def load_all_trans_supported_method():
-      all_libs = [TranslateMethod.SCRIPT_DIR]
-      # sys.path.extend(all_libs)
-      for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
-         # noinspection PyBroadException
-         try:
-            print(name)
-            if not is_pkg and not name.startswith("setup") and "translation_method" in name:
-               importlib.import_module("features.translate." + name)
-            elif "translation_method" in name:
-               _module = module_loader.find_module(name).load_module(name)
-         except Exception as _ex:
-            print(_ex)
-            pass
+   # def load_all_trans_supported_method():
+   #    all_libs = [TranslateMethod.SCRIPT_DIR]
+   #    # sys.path.extend(all_libs)
+   #    for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
+   #       # noinspection PyBroadException
+   #       try:
+   #          print(name)
+   #          if not is_pkg and not name.startswith("setup") and "translation_method" in name:
+   #             importlib.import_module("features.translate." + name)
+   #          elif "translation_method" in name:
+   #             _module = module_loader.find_module(name).load_module(name)
+   #       except Exception as _ex:
+   #          print(_ex)
+   #          pass
 
    
    def stop(self):

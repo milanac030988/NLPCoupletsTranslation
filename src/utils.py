@@ -1,6 +1,9 @@
 import re
 import string
 import json
+import stat
+import os
+import subprocess
 
 class Utils:
    """
@@ -132,3 +135,46 @@ Get all children classes of a class
       capitalized_sentences = [sentence.strip()[0].upper() + sentence.strip()[1:] if sentence else '' for sentence in sentences]
       # Ghép lại các câu với dấu xuống dòng
       return '\n'.join(capitalized_sentences)
+
+   @staticmethod
+   def make_executable(file_path):
+      """
+      Kiểm tra xem file có thể thực thi không. Nếu không, đặt quyền thực thi cho file.
+      
+      Args:
+         file_path (str): Đường dẫn đến file cần kiểm tra và thay đổi quyền truy cập.
+      """
+      # Kiểm tra xem file có tồn tại không
+      if not os.path.isfile(file_path):
+         return
+
+      # Lấy thông tin file
+      st = os.stat(file_path)
+
+      # Kiểm tra quyền thực thi
+      is_executable = bool(st.st_mode & stat.S_IXUSR)  # Kiểm tra quyền thực thi của chủ sở hữu (user)
+
+      if not is_executable:
+         # Thêm quyền thực thi cho chủ sở hữu (user), nhóm (group), và người dùng khác (others)
+         os.chmod(file_path, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+   @staticmethod
+   def make_executable_wsl(file_path):
+      """
+      Sử dụng wsl.exe để kiểm tra xem file có thể thực thi trên WSL không. 
+      Nếu không, đặt quyền thực thi cho file trên WSL.
+      
+      Args:
+         file_path (str): Đường dẫn đến file trên hệ thống tệp WSL cần kiểm tra và thay đổi quyền truy cập.
+      """
+      try:
+         # Kiểm tra xem file có quyền thực thi không trên WSL
+         check_command = f"test -x {file_path} && echo 'Executable' || echo 'Not Executable'"
+         result = subprocess.run(['wsl.exe', check_command], capture_output=True, text=True)
+         
+         if 'Not Executable' in result.stdout:
+               # Nếu file không có quyền thực thi, thêm quyền thực thi
+               subprocess.run(['wsl.exe', f"chmod +x {file_path}"])
+               # print(f"Đã đặt quyền thực thi cho file '{file_path}' trên WSL.")
+      except subprocess.CalledProcessError as e:
+         print(f"Lỗi khi thực thi lệnh trên WSL: {e}")

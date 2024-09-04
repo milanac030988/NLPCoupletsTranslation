@@ -1971,10 +1971,10 @@ Hài hòa tái tiếu tự thiên duyên.
 Lời mẹ dạy, trăm năm, tốt đẹp;
 Duyên trời xe, thêm bước, hài hòa.
 常有寬心能益壽
-永能希德可延年
+永能布德可延年
 Thường hữu khoan tâm năng ích thọ;
-Vĩnh năng bố đức khả điền niên.
-Văn thường rộng lượng, nên tăng thọ;
+Vĩnh năng bố đức khả diên niên.
+Vẫn thường rộng lượng, nên tăng thọ;
 Mãi hay ban phúc, được dài lâu.
 千秋祖國旺元氣
 一統江山永太平
@@ -2875,7 +2875,7 @@ Thú vị: chi lan trỗ tại "vườn tâm".
 老至生涯萬卷書
 Hứng lai văn tự tam bôi tửu;
 Lão chí sinh nhai vạn quyển thư.
-Rượu ba chén ngâm nga khí hứng;
+Rượu ba chén ngâm nga khi hứng;
 Sách vạn pho tiêu khiển tuổi già.
 (Nhà ông Trần Tất Thông, Mê Linh, Vĩnh Phúc)
 春節百花春聚江山含俯望
@@ -3254,12 +3254,12 @@ Trần Lê lịch đại tặng trung huân.
 Nam Bắc bốn phương tôn chính khí;
 Trần Lê lịch đại tặng công huân.
 
-臨水登山一路漸入佳景
-尋深古址中無限風光
+臨水登山一路漸入佳境
+尋源訪古此中無限風光
 Lâm thuỷ đăng sơn nhất lộ tiệm nhập giai cảnh;
-Tầm nguyên phóng cổ thử trung vô hạn phong quang.
-Làm thuỷ đăng sơn nhất lộ tiệm nhập giai cảnh;
-Tìm nguồn phóng cổ thử trung vô hạn phong quang.
+Tầm nguyên phỏng cổ thử trung vô hạn phong quang.
+Men nước lần non, một đường dần vào cảnh đẹp;
+Tìm nguồn hỏi cổ, trong đây vô hạn phong quang.
 
 立人標表人經度
 渡世津梁覺世開
@@ -3620,12 +3620,12 @@ Thánh đức anh linh phù quốc thịnh;
 Thần công hách trạc trợ dân an.
 Đức thánh anh linh, phù nước thịnh;
 Công thần hiển hách, giúp dân an.
-淆水源深流益達
-東阿日菀影樓長
+洮水源深流益逺
+東阿日暮影猶長
 Thao thuỷ nguyên thâm lưu ích viễn;
-Đông a nhật mọ ảnh đồ trường.
-Thao giang nguồn rộng, dòng xa tầm;
-Trần nghiệp về chiều, bóng vấn đài.
+Đông a nhật mộ ảnh do trường.
+Thao giang nguồn rộng, dòng xa thẳm;
+Trần nghiệp về chiều, bóng vẫn dài.
 退敵助神功南國山河拯所在
 安民留聖德雄朝苗裔到於今
 Thoái địch trợ thần công, Nam quốc sơn hà do sở tại;
@@ -5923,7 +5923,7 @@ Chốn này Ngọc Hoàng ngự;
 Ban chúc vọng Đài Sướng.
 (Bích Câu đạo quán, quận Đống Đa, Hà Nội)
 
-雲霄承露葉山海
+雲霄承露榮山海
 殿館聲名顯古今
 Vân tiêu thừa lộ vinh sơn hải;
 Điện quán thanh danh hiển cổ kim.
@@ -6702,12 +6702,12 @@ Nghĩ thị vũ lăng tiên cảnh đào hoa phiến phiến dục nghinh nhân.
 垂柳風情到此欲迎人時青翠
 桃花片片如斯頻送客處武陵
 Nghi thị vũ lăng tiên cảnh, đào hoa phiến phiến dục nghinh nhân.
-荻椛携云端時有清風時有月
+畫棟倚云端時有清風時有月
 長橋收野趣半看流水半看山
-Hoạ đồng ý vãn đoan, thời hữu thanh phong, thời hữu nguyệt;
-Trường kiều thâu dã thú, bán khan lưu thủy, bán khan sơn.
-Thưởng nguyệt đuối hoa đến đây cõi nhàn dừng lại thú;
-Nước non xanh lối bến thuyền câu cột vững bóng hình trăng.
+Hoạ đống ỷ vân đoan, thời hữu thanh phong, thời hữu nguyệt;
+Trường kiều thu dã thú, bán khan lưu thủy, bán khan sơn.
+Cột vẽ tựa trời mây, lúc có trăng trong, lúc gió mát;
+Cây cầu đón cảnh thú, nửa nhìn nước chảy, nửa nhìn non.
 遠水平沙有客泛舟桃葉渡
 斜風細雨何人攀折杏花村
 Viễn thủy bình sa, hữu khách phiếm chu đào diệp độ;
@@ -8023,9 +8023,9 @@ Tâm minh tứ tự Quốc ân trường.
 Ba cây hoè trồng, nhà thêm râm mát;
 Bốn chữ để bụng, nước chịu ơn dài.
 (Án sát Huỳnh Mẫn Đạt gia từ)
-國重家光皆世澤
+國寵家光皆世澤
 天經地義在人心
-Quốc sùng gia quang giai thế trạch;
+Quốc sủng gia quang giai thế trạch;
 Thiên kinh địa nghĩa tại nhân tâm.
 Nước quý, nhà sang, nhờ phúc ấm;
 Kính trời, nghĩa đất, ở lòng người.
@@ -9439,10 +9439,10 @@ Nhà gần phố xá, ra vào nên cẩn thận;
 Cửa hay đóng mở hôm sớm chớ vội vàng.
 前門欲大須存後
 後戶從寬在積深
-Tiền môn dục đại tu tôn hậu;
+Tiền môn dục đại tu tồn hậu;
 Hậu hộ tòng khoan tại tích thâm.
 Cửa trước mở to, nên có hậu;
-Nhà sau nói rộng, chứa cần nhiều.
+Nhà sau nới rộng, chứa cần nhiều.
 光前已啓家聲久
 裕後還留世澤長
 Quang tiến di khải gia thanh cửu;
@@ -9563,11 +9563,11 @@ Hỷ kiến hồng mai đa kết tử;
 Tiếu khan lục trúc hựu sinh tôn.
 Mừng thấy mai hồng đậu lắm quả;
 Cười xem trúc biếc lại ra măng.
-承軒竹報千年綠
+琅玕竹報千年綠
 富貴花開錦繡春
 Lang can trúc báo thiên niên lục;
 Phú quý hoa khai cẩm tú xuân.
-Trúc vấn ngọc quý, ngàn năm biếc;
+Trúc vân ngọc quý, ngàn năm biếc;
 Hoa nở giàu sang, gấm vóc xuân.
 紫荊花下兄宜弟
 彩服堂前子悅親
@@ -12344,11 +12344,11 @@ Giang sơn tụ tú quy tân trạch;
 Khuê bích liên huy ánh họa đường.
 Giang sơn tụ khí về tân trạch,
 Khuê bích liên màu ánh họa đường.
-甲第鼎新容駿馬
+甲第鼎新容駟馬
 華堂鐘秀起文人
-Giáp đệ đỉnh tân dụng tứ mã;
+Giáp đệ đỉnh tân dung tứ mã;
 Hoa đường chung tú khởi văn nhân.
-Khoa giáp cách tân dụng tứ mã;
+Khoa giáp cách tân dung tứ mã;
 Hoa đường chung đúc khởi văn nhân.
 堂開麗日金爐轉
 簾捲春風玉燕來
@@ -13004,8 +13004,8 @@ Can đảm chiếu nhân như tuyết sắc;
 Thư thiên trích địa tác kim thanh.
 Can đảm chiếu người như sắc tuyết;
 Sách rơi xuống đất này thành vàng.
-得山水萊在懷抱
-子古今文觀異同
+得山水樂在懷抱
+于古今文觀異同
 Đắc sơn thuỷ lạc tại hoài bão;
 Vu cổ kim văn quan dị đồng.
 Hoài bão nước non mừng được chốn;
@@ -13470,10 +13470,10 @@ Thời nhật mạc giao bình bạch quá;
 Sư nghiệp đương tòng viễn áo thừa.
 Thời gian chớ để trôi hờ hững;
 Sự nghiệp sao cho tiếp nối dài.
-好學深思能知其意
+好學滌思能知其意
 反本修古不忘其初
-Hiếu học dịch tư năng tri kỳ ý;
-Phản bản tu cổ bất phong kỳ sơ.
+Hiếu học địch tư năng tri kỳ ý;
+Phản bản tu cổ bất vong kỳ sơ.
 Chịu học chịu nghĩ nắm được ý nghĩa;
 Nhớ gốc nhớ nguồn không quên ban đầu.
 爲善讀書得安樂法

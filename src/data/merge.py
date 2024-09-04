@@ -4,9 +4,6 @@ import json
 import argparse
 from utils import *
 
-# def normalize_text(text):
-#     """Normalize text by removing punctuation, spaces, and new lines."""
-#     return re.sub(r'[^\u4e00-\u9fff]', '', str(text))
 
 def normalize_text(text):
     """Normalize text by removing punctuation, spaces, and new lines except for specified Unicode ranges."""
@@ -46,66 +43,6 @@ def check_duplicate(row1, row2):
         raise ex
     return compare_strings(norm1, norm2)
 
-# # Đường dẫn tới hai file CSV
-# file1_path = 'D:\\Document\\Master\\NLP\\Project\\output\\data\\dataset\\5000_couplets_filtered.csv'
-# file2_path = 'D:\\Document\\Master\\NLP\\Project\\output\\data\\dataset\\caudoi_dataset.csv'
-
-# # Đọc file CSV vào DataFrame
-# df1 = pd.read_csv(file1_path)
-# df2 = pd.read_csv(file2_path)
-
-# # # Thêm cột 'source' để biết câu này từ file nào
-# # df1['source'] = 'file1'
-# # df2['source'] = 'file2'
-
-# # Tạo DataFrame mới để lưu kết quả merge
-# merged_df = pd.DataFrame(columns=df1.columns)
-
-# # Tạo danh sách để lưu các chỉ số hàng trùng nhau
-# duplicates = []
-
-# # Kiểm tra các câu trùng nhau
-# for i, row1 in df1.iterrows():
-#     for j, row2 in df2.iterrows():
-#         if check_duplicate(row1, row2):
-#             duplicates.append((i, j))
-#             break
-
-# # Ghi các hàng không trùng vào DataFrame merged_df
-# df1_non_duplicates = df1.loc[~df1.index.isin([d[0] for d in duplicates])]
-# df2_non_duplicates = df2.loc[~df2.index.isin([d[1] for d in duplicates])]
-# merged_df = pd.concat([merged_df, df1_non_duplicates, df2_non_duplicates], ignore_index=True)
-
-# # Ghi các hàng trùng vào DataFrame merged_df (có thể tuỳ chọn cách xử lý)
-# for i, j in duplicates:
-#     row1 = df1.iloc[i]
-#     row2 = df2.iloc[j]
-#     # Chọn cách xử lý hàng trùng. Ví dụ: giữ lại hàng từ file1
-#     merged_df = pd.concat([merged_df, pd.DataFrame([row1])], ignore_index=True)
-
-# # Lưu DataFrame merged_df thành file CSV
-# merged_csv_file_path = 'merged.csv'
-# merged_df.to_csv(merged_csv_file_path, index=False, encoding='utf-8-sig')
-
-# # Lưu DataFrame merged_df thành file JSON
-# merged_json_file_path = 'merged.json'
-# merged_df.to_json(merged_json_file_path, orient='records', force_ascii=False, indent=4)
-
-# # Tạo báo cáo
-# report = {
-#     'total_rows_file1': len(df1),
-#     'total_rows_file2': len(df2),
-#     'total_merged_rows': len(merged_df),
-#     'total_duplicates': len(duplicates)
-# }
-
-# # Lưu báo cáo thành file JSON
-# report_json_file_path = 'report.json'
-# with open(report_json_file_path, 'w', encoding='utf-8') as f:
-#     json.dump(report, f, ensure_ascii=False, indent=4)
-
-# print(f"Data has been successfully merged to {merged_csv_file_path} and {merged_json_file_path}")
-# print(f"Report has been saved to {report_json_file_path}")
 def main(file1_path, file2_path, output_csv, output_json, report_dir):
     # Đọc file CSV vào DataFrame
     df1 = pd.read_csv(file1_path)

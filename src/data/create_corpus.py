@@ -64,7 +64,7 @@ def parse_arguments():
     # Return parsed arguments
     return args
 
-def read_config(config_file='create_corpus.ini'):
+def read_config(config_file='config.ini'):
     # print(os.environ['DATASET_OUTPUT_DIR'])
     # Enable interpolation to allow environment variable substitution
     config = configparser.ConfigParser(os.environ, interpolation=configparser.ExtendedInterpolation())
@@ -112,9 +112,9 @@ def main():
 
     # If no command-line arguments are provided, read from config file
     if not args.input or not args.output:
-        if os.path.exists(os.path.join(SCRIPT_DIR, 'create_corpus.ini')):
+        if os.path.exists(os.path.join(SCRIPT_DIR, 'config.ini')):
             print("Reading from config.ini...")
-            input_files, output_file = read_config(os.path.join(SCRIPT_DIR, 'create_corpus.ini'))
+            input_files, output_file = read_config(os.path.join(SCRIPT_DIR, 'config.ini'))
         else:
             raise ValueError("No command-line arguments provided and config.ini not found.")
     else:

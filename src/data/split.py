@@ -4,6 +4,8 @@ import argparse
 import os
 import configparser
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Chia file CSV thành train và test với tỉ lệ tùy chỉnh.")
     parser.add_argument('-i', '--input_file', type=str, help='Đường dẫn đến file CSV đầu vào.')
@@ -25,7 +27,7 @@ def main():
     ratio = 0.8
     
     # Read config file if present
-    config = read_config()
+    config = read_config(os.path.join(SCRIPT_DIR, 'config.ini'))
     
     if 'split_data' in config:
         print('split_data')
