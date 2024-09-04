@@ -1,3 +1,18 @@
+# *******************************************************************************
+#
+# File: translation_method_transformer.py
+#
+# Initially created by Nguyen Huynh Tri Cuong / Aug 2024
+#
+# Description:
+#   Implementation cho phương thức dịch sử dụng mô hình transformer.
+#
+# History:
+#
+# 01.08.2024 / V 0.1 / Nguyen Huynh Tri Cuong
+# - Khởi tạo
+#
+# *******************************************************************************
 from features.translate.translation_method import TranslateMethod
 from transformers import MarianTokenizer, MarianMTModel, AutoModelForSeq2SeqLM, AutoTokenizer, AutoModelForMaskedLM
 from utils import Utils
@@ -9,19 +24,39 @@ import re
 import torch
 
 class TranslateMethodTransformer(TranslateMethod):
+   """
+   Lớp: TranslateMethodTransformer
 
+   Mô tả:
+      Implementation của lớp TranslateMethod cho phương thức dịch sử dụng mô hình transformer.
+      Lớp này kế thừa từ lớp cơ bản TranslateMethod và cung cấp việc triển khai cụ thể cho 
+      phương thức dịch sử dụng mô hình transformer. Bằng cách override các phương thức cần thiết
+      như `translate` và `quit`, phương thức dịch sẽ được tích hợp vào GUI của ứng dụng.
+   """
    _TRANSLATION_METHOD = "Transformer"
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
    DICT_FILE_PATH = os.path.join(os.environ.get("REFS_DIR"), 'Hanzi2HanVietDB.db')
    DEFAULT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer/opus-mt-zh-vi-fine_tuned_model")
 
    def __init__(self):
+      """
+      Khởi tạo đối tượng TranslateMethodTransformer.
+
+      Phương thức khởi tạo này tải mô hình và bộ tokenizer của MarianMT từ thư mục định sẵn, 
+      thiết lập mô hình trên thiết bị phù hợp (CPU hoặc GPU nếu có), và chuyển mô hình sang 
+      chế độ đánh giá (evaluation mode).
+
+      Tham số:
+      None
+
+      Trả về:
+      None
+      """
       self.model = MarianMTModel.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
       self.tokenizer = MarianTokenizer.from_pretrained(TranslateMethodTransformer.DEFAULT_MODEL_DIR)
       device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.model.to(device)
       self.model.eval()
-      # self.tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
    
    def __del__(self):
       self.quit()
@@ -59,37 +94,7 @@ class TranslateMethodTransformer(TranslateMethod):
       
       return ' '.join(viet_translation)
 
-   def ensure_spaces_between_hanzi(self, text):
-      """
-      Kiểm tra và thêm khoảng trắng giữa các ký tự Hán tự trong một câu nếu chưa có.
-
-      Tham số:
-      text (str): Câu cần kiểm tra và xử lý.
-
-      Trả về:
-      str: Câu đã được thêm khoảng trắng giữa các ký tự Hán tự nếu cần thiết.
-      """
-      hanzi_ranges = [
-        (0x4e00, 0x9fff),   # CJK Unified Ideographs
-        (0x3400, 0x4dbf),   # CJK Unified Ideographs Extension A
-        (0x20000, 0x2a6df), # CJK Unified Ideographs Extension B
-        (0x2a700, 0x2b73f), # CJK Unified Ideographs Extension C
-        (0x2b740, 0x2b81f), # CJK Unified Ideographs Extension D
-        (0x2b820, 0x2ceaf), # CJK Unified Ideographs Extension E
-        (0x2ceb0, 0x2ebef), # CJK Unified Ideographs Extension F
-        (0x30000, 0x3134f), # CJK Unified Ideographs Extension G
-        (0x31350, 0x323af), # CJK Unified Ideographs Extension H
-        (0x2ebf0, 0x2ee5f), # CJK Unified Ideographs Extension I
-        (0xf900, 0xfaff)    # CJK Compatibility Ideographs
-      ]
-
-      # Tạo regex pattern từ các dải mã Unicode
-      pattern = ''.join([f'\\u{start:04x}-\\u{end:04x}' for start, end in hanzi_ranges])
-      regex_pattern = f'(?<=[{pattern}])(?=[{pattern}])'
-
-      # Thay thế bằng khoảng trắng giữa các ký tự Hán tự nếu chưa có
-      return re.sub(regex_pattern, ' ', text)
-
+   
    def translate_vietnamese(self, han_sentence):
       han_sentences = han_sentence.split("\n")
       translated_text = ''
@@ -136,8 +141,8 @@ def clean_tokenization(new_tokens, tokens):
     return cleaned_tokens
 
 if __name__ == "__main__":
-   MODEL_PATH = os.path.join( TranslateMethodTransformer.SCRIPT_DIR, "../../../models/transformer/opus-mt-zh-vi-fine_tuned_model_bk")
-   sentence = "四座有高明"
+   MODEL_PATH = os.path.join( TranslateMethodTransformer.SCRIPT_DIR, "../../../models/transformer/opus-mt-zh-vi-fine_tuned_model")
+   sentence = """細 訒 如 圖 欲 命 詩."""
    sentence = sentence.replace(' ','')
    model = MarianMTModel.from_pretrained(MODEL_PATH)
    tokenizer = MarianTokenizer.from_pretrained(MODEL_PATH)
@@ -150,9 +155,9 @@ if __name__ == "__main__":
    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
    model.to(device)
    model.eval()
-   special_tokens_dict = tokenizer.special_tokens_map
-   print("Special Tokens:", special_tokens_dict)
-   inputs = tokenizer(sentence, return_tensors="pt", max_length=36, truncation=True).to(device)
+   # special_tokens_dict = tokenizer.special_tokens_map
+   # print("Special Tokens:", special_tokens_dict)
+   inputs = tokenizer(sentence, return_tensors="pt", max_length=18, truncation=True).to(device)
 
    # Kiểm tra và loại bỏ ký tự `_`
    # tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])

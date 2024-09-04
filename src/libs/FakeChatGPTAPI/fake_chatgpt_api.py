@@ -104,6 +104,7 @@ Constructor for the FakeChatGPTAPI class.
         self.context_content = config.get('context', 'context_content')
         self.headless_mode = config.getboolean('options', 'headless_mode', fallback=False)
         self.cookies_path = config.get('driver', 'cookies_path', fallback="")
+        self.binary_path = config.get('driver', 'binary_path', fallback="")
         
         self.initialize()
         FakeChatGPTAPI._instances.append(self)
@@ -134,8 +135,8 @@ Constructor for the FakeChatGPTAPI class.
 
             # Additional options to make headless mode more stealthy
             options.add_argument("--disable-extensions")
-            options.add_argument("--proxy-server='direct://'")
-            options.add_argument("--proxy-bypass-list=*")
+            # options.add_argument("--proxy-server='direct://'")
+            # options.add_argument("--proxy-bypass-list=*")
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-accelerated-2d-canvas")
             options.add_argument("--disable-accelerated-jpeg-decoding")
@@ -146,10 +147,13 @@ Constructor for the FakeChatGPTAPI class.
         options.add_argument(f"--user-data-dir={self.user_data_dir}")
         options.add_argument(f"--profile-directory={self.profile_directory}")
 
+        if self.binary_path:
+            options.binary_location = self.binary_path
         
         caps = DesiredCapabilities().CHROME
         caps["pageLoadStrategy"] = "eager"
         self.driver: uc.Chrome = uc.Chrome(options=options, driver_executable_path=self.driver_path)#, desired_capabilities=caps)#, driver_executable_path=self.driver_path, service_args=['--quiet'])
+        print(os.environ.get('https_proxy'))
         self.driver.get(self.url)
 
         if self.cookies_path:
@@ -632,6 +636,8 @@ if __name__ == "__main__":
 
     # fake_api.reset()
     print("test")
+    resp = fake_api.send_request("乾坤天意愛維新")
+    print(resp)
     del fake_api
 
     # try:

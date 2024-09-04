@@ -1,6 +1,8 @@
 import subprocess
 import os
 import sys
+import argparse
+from src.data.download_data_models import download_data
 # def signal_handler(sig, frame, obj):
 #    """
 # Handle signals from the operating system.
@@ -45,11 +47,41 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(SCRIPT_DIR, 'src')
 MAIN_PAGE = os.path.join(SCRIPT_DIR, "src/gui/main_page.py")
+DOWNLOAD_SCRIPT = os.path.join(SCRIPT_DIR, "src/data/download_data_models.py")
+
 if SOURCE not in sys.path:
     sys.path.append(SOURCE)
    #  print(sys.path)
 env = os.environ.copy()
 env["PYTHONPATH"] = os.pathsep.join(sys.path)
 print(env.get("REFS_DIR"))
+
+def parse_arguments():
+   # Initialize the argument parser
+   parser = argparse.ArgumentParser(description="Download raw data và models.")
+    
+   # Define command-line arguments
+   parser.add_argument('--download-data', action='store_true', default=False,  help="Cần download data về.")
+   
+   
+   # Parse the arguments
+   args = parser.parse_args()
+
+   # Return parsed arguments
+   return args
+
 if __name__ == "__main__":
-   process = subprocess.Popen(['streamlit', 'run', MAIN_PAGE], env=env)
+   print("start app translation")
+   args = parse_arguments()
+   if args.download_data:
+      # download_data_proc = subprocess.Popen(["python", DOWNLOAD_SCRIPT], shell=False, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      # output, error = download_data_proc.communicate()
+      # if download_data_proc.returncode != 0: 
+      #    print(f"Download data failed. Exit with code: {download_data_proc.returncode}")
+      #    exit()
+      download_data()
+
+   subprocess.Popen(['streamlit', 'run', MAIN_PAGE], env=env)
+   # output, error = app_proc.communicate()
+   # if app_proc.returncode != 0: 
+   #    print(f"Exit with code: {app_proc.returncode}")

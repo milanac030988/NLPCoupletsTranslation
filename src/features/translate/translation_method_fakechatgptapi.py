@@ -1,3 +1,18 @@
+# *******************************************************************************
+#
+# File: translation_method_fakechatgptapi.py
+#
+# Initially created by Nguyen Huynh Tri Cuong / Aug 2024
+#
+# Description:
+#   Implementation cho phương thức dịch sử dụng Fake ChatGPT API.
+#
+# History:
+#
+# 01.08.2024 / V 0.1 / Nguyen Huynh Tri Cuong
+# - Khởi tạo
+#
+# *******************************************************************************
 from translation_method import TranslateMethod
 from libs.FakeChatGPTAPI.fake_chatgpt_api import FakeChatGPTAPI
 

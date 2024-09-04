@@ -1,3 +1,18 @@
+# *******************************************************************************
+#
+# File: train_transformer.py
+#
+# Initially created by Nguyen Huynh Tri Cuong / Aug 2024
+#
+# Description:
+#   Fine tune mô hình Helsinki-NLP/opus-mt-zh-vi với dữ liệu câu đối.
+#
+# History:
+#
+# 01.08.2024 / V 0.1 / Nguyen Huynh Tri Cuong
+# - Khởi tạo
+#
+# *******************************************************************************
 import datasets
 import pandas as pd
 import re
@@ -5,7 +20,7 @@ import os
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 import torch
 import argparse
-from transformers import MarianTokenizer, MarianMTModel, Seq2SeqTrainingArguments, Seq2SeqTrainer, DataCollatorForSeq2Seq
+from transformers import MarianTokenizer, MarianMTModel, Seq2SeqTrainingArguments, Seq2SeqTrainer, DataCollatorForSeq2Seq, EarlyStoppingCallback
 from datasets import load_dataset, Dataset, DatasetDict
 from sklearn.model_selection import train_test_split
 from utils import *
@@ -89,7 +104,6 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     model_name = MODEL_NAME_TO_FINE_TUNE
     tokenizer = MarianTokenizer.from_pretrained(model_name)
     model = MarianMTModel.from_pretrained(model_name)
-    tokenizer_vi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-vi-en")
 
     print(f"Use GPU: {torch.cuda.is_available()}")
     # Check if CUDA is available and move the model to GPU if possible
@@ -117,6 +131,7 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     training_args = Seq2SeqTrainingArguments(
         output_dir=train_args['output_dir'],
         evaluation_strategy=train_args['evaluation_strategy'],
+        save_strategy="epoch",        # Lưu mô hình sau mỗi epoch
         learning_rate=train_args['learning_rate'],
         per_device_train_batch_size=train_args['per_device_train_batch_size'],
         per_device_eval_batch_size=train_args['per_device_eval_batch_size'],
@@ -126,11 +141,18 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
         predict_with_generate=train_args['predict_with_generate'],
         fp16=train_args['fp16'],
         warmup_steps=train_args['warmup_steps'],
-        gradient_accumulation_steps=train_args['gradient_accumulation_steps']
+        gradient_accumulation_steps=train_args['gradient_accumulation_steps'],
+        load_best_model_at_end=True,  # Tải mô hình tốt nhất sau khi huấn luyện
     )
 
     # Define data collator
     data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+
+    # Bước 5: Triển khai Early Stopping
+    early_stopping_callback = EarlyStoppingCallback(
+        early_stopping_patience=5,  # Dừng huấn luyện nếu không có cải thiện sau 3 epochs liên tiếp
+        early_stopping_threshold=0.0  # Cải thiện nhỏ nhất cần thiết để tiếp tục huấn luyện
+    )
 
     # Initialize the Trainer
     trainer = Seq2SeqTrainer(
@@ -139,15 +161,16 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
         train_dataset=tokenized_train_dataset,
         eval_dataset=tokenized_eval_dataset,
         data_collator=data_collator,
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
+        callbacks=[early_stopping_callback]
     )
 
     # Fine-tune the model
     trainer.train()
 
     # Save the model and tokenizer
-    model.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model2")
-    tokenizer.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model2")
+    model.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model_include_modern3")
+    tokenizer.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model_include_modern3")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fine-tune a MarianMT model on a custom dataset.')

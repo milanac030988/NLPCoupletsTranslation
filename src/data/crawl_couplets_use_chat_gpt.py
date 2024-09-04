@@ -2,15 +2,17 @@ from fake_chatgpt_api import FakeChatGPTAPI
 import os
 import argparse
 import re
+
+
 SCRIPT_DIR:str = os.path.dirname(os.path.abspath(__file__))
 INI_FILE_PATH:str = os.path.join(SCRIPT_DIR, 'fake_chatgpt_api_img_extract.ini')
 
 
 # Đường dẫn tới thư mục chứa các ảnh và file output.txt
-image_folder = "D:\\Document\\Master\\NLP\\Project\\data\\raw_data\\MS.K32-5000-CauDoi\\CH\\CauDoiHanNomImg_p2"
+# image_folder = "D:\\Document\\Master\\NLP\\Project\\data\\raw_data\\MS.K32-5000-CauDoi\\CH\\CauDoiHanNomImg_p2"
 output_file = "5000_cau_doi.txt"
 
-images = [os.path.join(image_folder, f"HanNomCouplets_p2_page-{i:04d}.jpg") for i in range(1, 431)]
+# images = [os.path.join(image_folder, f"HanNomCouplets_p2_page-{i:04d}.jpg") for i in range(1, 431)]
 
 fake_api = FakeChatGPTAPI(config_path=INI_FILE_PATH)
 
@@ -42,7 +44,7 @@ def parse_arguments():
    parser.add_argument('--use_checkpoint', action='store_true', help='Use checkpoint to resume from last position.')
    return parser.parse_args()
 
-def read_config(config_file='split_mosses_corpus.ini'):
+def read_config(config_file='config.ini'):
    config = configparser.ConfigParser(os.environ, interpolation=configparser.ExtendedInterpolation())
    config.read(config_file)
    return config
@@ -85,7 +87,7 @@ def main():
    use_checkpoint = args.use_checkpoint
    
    # Read config file if present
-   config = read_config()
+   config = read_config(os.path.join(SCRIPT_DIR, 'config.ini'))
     
    if 'crawl_couplets_gpt' in config:
       images_folder = config['crawl_couplets_gpt'].get('images_folder', images_folder, vars=os.environ)
@@ -113,7 +115,7 @@ def main():
             START = checkpoint
 
    # images = [os.path.join(image_folder, f"HanNomCouplets_p2_page-{i:04d}.jpg") for i in range(STA, 431)]
-   images = get_file_paths(image_folder)
+   images = get_file_paths(images_folder)
    try:
       for i in range(START, len(images), RANGE):
          current_index = i

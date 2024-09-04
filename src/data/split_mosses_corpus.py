@@ -4,6 +4,9 @@ import platform
 import configparser
 import subprocess
 
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Split text file into .hanzi and .vietnamese files.')
     parser.add_argument('-i', '--input', type=str, help='Input file path.')
@@ -78,7 +81,7 @@ def main():
     output_folder = './output'
     
     # Read config file if present
-    config = read_config()
+    config = read_config(os.path.join(SCRIPT_DIR, 'config.ini'))
     
     if 'split_corpus' in config:
         input_file = config['split_corpus'].get('input_file', input_file, vars=os.environ)
