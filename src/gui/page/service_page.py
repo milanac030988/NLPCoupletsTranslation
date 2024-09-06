@@ -154,8 +154,7 @@ if authentication_status:
     with col8:
        # Kiểm tra trạng thái ẩn/hiện biểu đồ
        if st.session_state['show_chart']:
-          if st.session_state.service_status == ServiceStatus.STARTED:
-             st.write("Biểu đồ thống kê request thời gian thực")
+          if st.session_state.service_status == ServiceStatus.STARTED:             
              response = requests.get("http://127.0.0.1:8000/request_stats")
              if response.status_code == 200:
                 data = response.json()
@@ -177,7 +176,7 @@ if authentication_status:
     
                 # Hiển thị biểu đồ trên Streamlit
                 st.pyplot(fig)
-
+                st.write("Biểu đồ thống kê request thời gian thực")
        if st.session_state['show_chart']:
        # print(f"Service status: {server_state.translation_service.get_status()}")
           if server_state.translation_service.get_status() == ServiceStatus.STARTED:
