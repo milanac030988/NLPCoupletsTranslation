@@ -25,17 +25,17 @@ Chào mừng bạn đến với dự án "Ứng dụng dịch hoành phi câu đ
 
 ## Yêu cầu hệ thống
 Trước khi bắt đầu, hãy đảm bảo rằng hệ thống của bạn đã cài đặt:
-- Python 3.7 trở lên
+- Python 3.9 trở lên
 - Các thư viện Python cần thiết được liệt kê trong file `requirements.txt`
 
-## Hướng dẫn cài đặt
+## Hướng dẫn cài đặt trên Ubuntu
 
 ### 1. Clone repository
 Đầu tiên, bạn cần clone repository này về máy tính của mình:
 
 ```bash
-git clone [repository-link]
-cd [repository-directory]
+git clone https://github.com/milanac030988/NLPCoupletsTranslation.git
+cd NLPCoupletsTranslation
 ```
 
 ### 2. Cài đặt Env
@@ -56,17 +56,129 @@ Tải các mô hình cần thiết bằng lệnh:
 ```bash
 python /workspaces/NLPCoupletsTranslation/src/data/download_data_models.py
 ```
+Hoặc bạn có thể chạy ứng dụng lần đầu với argument `--download-data` bằng lệnh :
+
+```bash
+python run.py  `--download-data`
+```
+- `--download-data`: Tùy chọn này sẽ tải về các models cần thiết cho ứng dụng.
 
 ## Cách sử dụng
 
 ### Chạy ứng dụng Streamlit
-Sau khi hoàn thành các bước cài đặt, bạn có thể chạy ứng dụng Streamlit bằng lệnh:
+Sau khi hoàn thành các bước cài đặt, bạn có thể chạy ứng dụng lần đầu bằng lệnh:
 
 ```bash
-streamlit run run.py
+streamlit run run.py 
 ```
 
 Ứng dụng sẽ mở ra trong trình duyệt của bạn, và bạn có thể bắt đầu sử dụng.
+
+
+# Hướng dẫn cài đặt ứng dụng với Docker
+
+## Giới thiệu
+
+Ứng dụng này được đóng gói dưới dạng container Docker để dễ dàng triển khai và chạy trên bất kỳ hệ thống nào hỗ trợ Docker.
+
+## Yêu cầu
+
+- Docker phải được cài đặt trên máy của bạn. Nếu chưa cài đặt, bạn có thể tham khảo hướng dẫn tại [Docker Official Website](https://docs.docker.com/get-docker/).
+
+## Hướng dẫn cài đặt
+
+### 1. Clone repository
+
+Đầu tiên, bạn cần clone repo của ứng dụng về máy của mình:
+
+```bash
+git clone https://github.com/milanac030988/NLPCoupletsTranslation.git
+cd NLPCoupletsTranslation
+```
+
+### 2. Xây dựng Docker Image
+
+Sử dụng Dockerfile đã có sẵn để xây dựng Docker image cho ứng dụng của bạn:
+
+```bash
+docker build -t han-nom-translation-app .
+```
+
+### 3. Chạy Container lần đầu tiên để tải dữ liệu
+
+Trong lần chạy đầu tiên, bạn nên chạy container với argument `--download-data` để Docker có thể tải về các models cần thiết cho ứng dụng:
+
+```bash
+docker run -it -p 127.0.0.1:8501:8501 --name han-nom-app han-nom-translation-app --download-data
+```
+
+- `-it`: Chạy container ở chế độ tương tác.
+- `-p 127.0.0.1:8501:8501`: Mở cổng 8501 trên localhost để truy cập ứng dụng từ bên ngoài.
+- `han-nom-translation-app`: Tên của Docker image mà bạn đã xây dựng.
+- `--download-data`: Tùy chọn này sẽ tải về các models cần thiết cho ứng dụng.
+- `--name han-nom-app`: Đặt tên cho container là han-nom-app.
+
+### 4. Chạy Container từ Docker Image (Những lần sau)
+
+Sau khi đã tải dữ liệu, bạn có thể chạy lại container mà không cần tùy chọn `--download-data`:
+
+```bash
+docker run -d -p 127.0.0.1:8501:8501 --name han-nom-app han-nom-translation-app
+```
+
+### 5. Kiểm tra trạng thái của Container
+
+Để kiểm tra xem container của bạn có chạy thành công hay không, sử dụng lệnh:
+
+```bash
+docker ps
+```
+
+Lệnh này sẽ liệt kê tất cả các container đang chạy. Bạn sẽ thấy tên `han-nom-app` trong danh sách nếu container đã khởi động thành công.
+
+### 6. Truy cập ứng dụng
+
+Mở trình duyệt và truy cập ứng dụng tại địa chỉ:
+
+```
+http://127.0.0.1:8501
+```
+
+Thay đổi địa chỉ và cổng tùy theo cấu hình của bạn.
+
+## Các lệnh hữu ích khác
+
+- **Xem logs của container:**
+
+  ```bash
+  docker logs han-nom-app
+  ```
+
+- **Dừng container:**
+
+  ```bash
+  docker stop han-nom-app
+  ```
+
+- **Xóa container:**
+
+  ```bash
+  docker rm han-nom-app
+  ```
+
+- **Xóa Docker image:**
+
+  ```bash
+  docker rmi han-nom-translation-app
+  ```
+
+## Tham khảo thêm
+
+- [Tài liệu Docker](https://docs.docker.com/)
+
+## Đóng góp
+
+Nếu bạn muốn đóng góp vào dự án này, vui lòng tạo Pull Request hoặc mở Issues mới trên GitHub.
 
 ## Hỗ trợ
 Nếu bạn gặp bất kỳ vấn đề gì hoặc có câu hỏi, vui lòng mở một issue trên trang GitHub của dự án hoặc liên hệ với chúng tôi qua email [nhtcuong@gmail.com].
