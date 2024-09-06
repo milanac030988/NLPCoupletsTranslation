@@ -30,11 +30,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_NAME_TO_FINE_TUNE = "Helsinki-NLP/opus-mt-zh-vi"
 DEFAULT_OUPUT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer")
 
-DEFAULT_DATASET_PATH = f"{os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'train.csv')}, \
-                         {os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'entities_dict.csv')}, \
-                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'BinhNgoDaiCao.csv')}, \
-                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'HichTuongSi.csv')}, \
-                         {os.path.join(os.environ.get('RAW_DATA_DIR'), 'ChinhPhuNgam.csv')} "
+# DEFAULT_DATASET_PATH = f"{os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'train.csv')}, \
+#                          {os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'entities_dict.csv')}, \
+#                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'BinhNgoDaiCao.csv')}, \
+#                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'HichTuongSi.csv')}, \
+#                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'ChinhPhuNgam.csv')}, \
+#                          {os.path.join(os.environ.get('RAW_DATA_DIR'), 'DaiVietSuKyToanThu_3columns.csv')} "
+
+DEFAULT_DATASET_PATH = f"{os.path.join(os.environ.get('INTERMEDIATE_DATA_DIR'), 'train_augmented.csv')}"
 
 # Preprocess function to normalize text
 def preprocess_text(text):
@@ -169,8 +172,8 @@ def main(dataset_path, source_col, target_col, outdir, splits, train_args):
     trainer.train()
 
     # Save the model and tokenizer
-    model.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model_include_modern3")
-    tokenizer.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model_include_modern3")
+    model.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model4")
+    tokenizer.save_pretrained(f"{outdir}/opus-mt-zh-vi-fine_tuned_model4")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fine-tune a MarianMT model on a custom dataset.')

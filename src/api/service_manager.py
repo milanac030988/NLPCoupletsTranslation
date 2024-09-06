@@ -4,6 +4,8 @@ import os
 import sys
 import signal
 import psutil
+from datetime import datetime, timedelta
+
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,7 +20,7 @@ class ServiceManager:
         self.process = None
         self.status = ServiceStatus.STOPPED
         self.find_existing_process()
-        
+        self.start_time = datetime.now()
         
     def find_existing_process(self):
         """
@@ -41,9 +43,11 @@ class ServiceManager:
         is_started = self.find_existing_process()
         if not is_started:
             # Start the FastAPI server
-            self.process = subprocess.Popen(["uvicorn", "api.service:app", "--reload"])
-            self.status = ServiceStatus.STARTED
+            self.process = subprocess.Popen(["uvicorn", "api.service:app", "--reload"])            
             print("API server started.")
+
+        self.start_time = datetime.now()
+        self.status = ServiceStatus.STARTED
 
     def stop_server(self):
         if self.process is not None:
@@ -56,6 +60,9 @@ class ServiceManager:
 
     def get_status(self):
         return self.status
+
+    def get_start_time(self):
+        return self.start_time
 
 # Example usage:
 if __name__ == "__main__":

@@ -13,7 +13,7 @@
 # - Khởi tạo
 #
 # *******************************************************************************
-from translation_method import TranslateMethod
+from features.translate.translation_method import TranslateMethod
 from libs.FakeChatGPTAPI.fake_chatgpt_api import FakeChatGPTAPI
 
 class TranslateMethodFakeChatGPTAPI(TranslateMethod):
