@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 class RequestHandler:
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+   CONTRIBUTE_FILE_PATH = os.path.join(SCRIPT_DIR, "contribute/contribute.csv")
    def __init__(self):
       self.running = True
       self.translation_manager = TranslationManager()
@@ -24,18 +25,29 @@ class RequestHandler:
    def translate(self, han_sentence, trasnslation_method_name):
       # if trasnslation_method_name not in self.translation_method_instances:
       #    self.translation_method_instances[trasnslation_method_name] = self.translation_methods[trasnslation_method_name]()
-      translation_method = self.translation_manager.get_translation_method(trasnslation_method_name)
-      if translation_method:
-         sv_translation = translation_method.translate(han_sentence)#
-         sv_translation = Utils().extract_json(sv_translation)
-         # Xử lý xuống hàng và viết hoa đầu câu
-         sv_lines = sv_translation['sv'].split('\n')
-         sv_lines = [line.strip() for line in sv_lines]
-         formatted_sv_translation = '\n'.join(sv_lines)        
-         vi_lines = sv_translation['vi'].split('\n')
-         vi_lines = [line.strip() for line in vi_lines]
-         formatted_vi_translation = '\n'.join(vi_lines)
-         return formatted_sv_translation, formatted_vi_translation
+      if trasnslation_method_name:
+         translation_method = self.translation_manager.get_translation_method(trasnslation_method_name)
+         if translation_method:
+            sv_translation = translation_method.translate(han_sentence)#
+            sv_translation = Utils().extract_json(sv_translation)
+            # Xử lý xuống hàng và viết hoa đầu câu
+            sv_lines = sv_translation['sv'].split('\n')
+            sv_lines = [line.strip() for line in sv_lines]
+            formatted_sv_translation = '\n'.join(sv_lines)        
+            vi_lines = sv_translation['vi'].split('\n')
+            vi_lines = [line.strip() for line in vi_lines]
+            formatted_vi_translation = '\n'.join(vi_lines)
+            return formatted_sv_translation, formatted_vi_translation
+      else:
+         translation_method_sv = self.translation_manager.get_translation_method("Moses")
+         translation_method_vi = self.translation_manager.get_translation_method("Transformer")
+         formatted_sv_translation = ""
+         formatted_vi_translation = ""
+         if translation_method_sv:
+            formatted_sv_translation = translation_method_sv.translate_hanviet(han_sentence)   
+         if translation_method_vi:   
+            formatted_vi_translation = translation_method_vi.translate_vietnamese(han_sentence)
+            return formatted_sv_translation, formatted_vi_translation
    
    # def load_all_trans_supported_method():
    #    all_libs = [TranslateMethod.SCRIPT_DIR]
@@ -83,6 +95,11 @@ class RequestHandler:
       # Giả sử có logic kiểm tra đóng góp ở đây
       result = "accept" if cn and sv and vi else "reject"
       logger.info(f"Contribution requested: cn={cn}, sv={sv}, vi={vi}")
+      with open(RequestHandler.CONTRIBUTE_FILE_PATH, mode='a', newline='', encoding='utf-8-sig') as file:
+         writer = csv.writer(file)
+         
+         # Ghi thêm dòng mới vào CSV
+         writer.writerow([cn, sv, vi])
       
       return {
          "type": "contribute_rep",

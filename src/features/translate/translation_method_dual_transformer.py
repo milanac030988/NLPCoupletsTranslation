@@ -79,7 +79,11 @@ class TranslateMethodDualTransformer(TranslateMethod):
                # else:
                #    viet_translation.append('[UNKNOWN]')
       
-      return ' '.join(viet_translation)
+      translated_text = ' '.join(viet_translation)
+      if translated_text[-1] != ".":
+         translated_text += "."       
+      translated_text = Utils.capitalize_after_newline(translated_text.lower())
+      return translated_text
 
    def inference(self, text):
       tk_kwargs = dict(
