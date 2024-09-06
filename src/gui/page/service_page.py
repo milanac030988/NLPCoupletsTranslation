@@ -6,6 +6,7 @@ import os
 import threading
 import time
 import requests
+import shutil
 import streamlit_authenticator as stauth
 import matplotlib.pyplot as plt
 from streamlit_autorefresh import st_autorefresh
@@ -13,6 +14,10 @@ from streamlit.runtime.scriptrunner.script_run_context import get_script_run_ctx
 # from translation_service import TranslationService
 from streamlit_server_state import server_state, server_state_lock
 from api.service_manager import ServiceManager, ServiceStatus
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONTRIBUTE_FILE_FOLDER = os.path.join(SCRIPT_DIR, "../../api/contribute")
+PROCESS_DATA_DIR = os.environ.get('PROCESS_DATA_DIR')
 
 st.set_page_config(layout="wide")
 # Khai báo thông tin đăng nhập của người dùng dưới dạng dictionary
@@ -187,7 +192,7 @@ if authentication_status:
           st.button('Hiện chart', on_click=toggle_refresh)
     
     with col9:
-       file_list = [f for f in os.listdir() if f.endswith('.csv')]
+       file_list = [f for f in os.listdir(CONTRIBUTE_FILE_FOLDER) if f.endswith('.csv')]
     
        # Hiển thị danh sách file với checkbox
        st.write("Danh sách file CSV:")
@@ -200,19 +205,30 @@ if authentication_status:
                 st.session_state.selected_files.remove(file)
     
        # Nút để thực hiện tác vụ với file được chọn
-       if st.button("Thực hiện tác vụ"):
+       if st.button("Chấp nhận"):
           if st.session_state.selected_files:
-             st.write(f"Thực hiện tác vụ với các file: {', '.join(st.session_state.selected_files)}")
-             # Thêm mã để thực hiện tác vụ với các file được chọn
+             st.write(f"File được chấp nhận: {', '.join(st.session_state.selected_files)}")
+             for source_file in st.session_state.selected_files:
+               # Sao chép file tới thư mục đích
+               shutil.copy(os.path.join(CONTRIBUTE_FILE_FOLDER, source_file), PROCESS_DATA_DIR)
+               print(f"Đã sao chép file từ {source_file} tới {destination_file}")
+
+               # Xóa nội dung của file CSV gốc
+               with open(source_file, mode='w', newline='', encoding='utf-8-sig') as file:
+                  # Mở file ở chế độ ghi ('w') để xóa nội dung
+                  pass  # Nội dung file sẽ bị xóa sau khi mở ở chế độ 'w'
+
+               print(f"Nội dung của file {source_file} đã được xóa.")
           else:
              st.write("Không có file nào được chọn")
     
        # Hiển thị nội dung file CSV khi click vào
        if st.session_state.selected_files:
           st.write("Nội dung file:")
-          selected_file = st.session_state.selected_files[0]  # Hiển thị nội dung file đầu tiên được chọn
+          selected_file = os.path.join(CONTRIBUTE_FILE_FOLDER, st.session_state.selected_files[0])  # Hiển thị nội dung file đầu tiên được chọn
           df = pd.read_csv(selected_file)
-          st.write(df)
+          if df:
+            st.write(df)
 
 
 elif authentication_status == False:

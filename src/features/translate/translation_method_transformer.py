@@ -36,7 +36,7 @@ class TranslateMethodTransformer(TranslateMethod):
    _TRANSLATION_METHOD = "Transformer"
    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
    DICT_FILE_PATH = os.path.join(os.environ.get("REFS_DIR"), 'Hanzi2HanVietDB.db')
-   DEFAULT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer/opus-mt-zh-vi-fine_tuned_model4")
+   DEFAULT_MODEL_DIR = os.path.join(os.environ.get("MODELS_DIR"), "transformer/opus-mt-zh-vi-fine_tuned_model")
 
    def __init__(self):
       """
@@ -91,8 +91,11 @@ class TranslateMethodTransformer(TranslateMethod):
                   viet_translation.append(result[0])
                # else:
                #    viet_translation.append('[UNKNOWN]')
-      
-      return ' '.join(viet_translation)
+      translated_text = ' '.join(viet_translation)
+      if translated_text[-1] != ".":
+         translated_text += "."       
+      translated_text = Utils.capitalize_after_newline(translated_text.lower())
+      return translated_text
 
    
    def translate_vietnamese(self, han_sentence):
