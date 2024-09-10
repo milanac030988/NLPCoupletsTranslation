@@ -51,29 +51,65 @@ Sử dụng pip để cài đặt các thư viện cần thiết:
 pip install -r requirements.txt
 ```
 
-### 4. Tải các mô hình cần thiết:
-Tải các mô hình cần thiết bằng lệnh:
-```bash
-python /workspaces/NLPCoupletsTranslation/src/data/download_data_models.py
-```
-Hoặc bạn có thể chạy ứng dụng lần đầu với argument `--download-data` bằng lệnh :
-
-```bash
-python run.py  `--download-data`
-```
-- `--download-data`: Tùy chọn này sẽ tải về các models cần thiết cho ứng dụng.
 
 ## Cách sử dụng
 
-### Chạy ứng dụng Streamlit
-Sau khi hoàn thành các bước cài đặt, bạn có thể chạy ứng dụng lần đầu bằng lệnh:
+### Chạy ứng dụng webapp
+Sau khi hoàn thành các bước cài đặt, bạn có thể chạy ứng dụng webapp lần đầu bằng lệnh:
 
 ```bash
-streamlit run run.py 
+python run.py 
 ```
 
-Ứng dụng sẽ mở ra trong trình duyệt của bạn, và bạn có thể bắt đầu sử dụng.
+Ứng dụng sẽ mở ra trong trình duyệt của bạn tại địa chỉ [http://localhost:8501](http://localhost:8501), và bạn có thể bắt đầu sử dụng.
 
+### Chạy translation service only
+Nếu chỉ muốn chạy translation service, bạn có thể set RUNTYPE environment variable như sau:
+
+```bash
+export RUNTYPE=api
+python run.py 
+```
+Một FastAPI service sẽ run ở port 8000. Bạn có thể tạo request đến API service bằng python code như sau:
+
+- Send translation request:
+```python
+import requests
+# URL của API FastAPI
+url = "http://127.0.0.1:8000/translate/"
+
+# Dữ liệu JSON theo format TranslateRequest
+data = {
+    "type": "text",
+    "source": """細 柳 營 中 親 淑 女
+夭 桃 華 裏 指 軍 符""",
+    "method": ""
+}
+
+# Gửi request POST tới API FastAPI
+response = requests.post(url, json=data)
+```
+
+- Send contribute request:
+```python
+import requests
+# URL của API FastAPI
+url = "http://127.0.0.1:8000/contribute/"
+
+# Dữ liệu JSON theo format ContributeRequest
+data_contribiute  = {
+   "type": "text",
+    "cn": """細 柳 營 中 親 淑 女
+夭 桃 華 裏 指 軍 符""",
+    "sv": """Tế liễu doanh trung thân thục nữ
+Yêu đào hoa lý chỉ quân phù.""",
+    "vi": """Chốn doanh liễu gần kề thục nữ
+Vẻ đào tơ nay chỉ quân phù."""
+}
+
+# Gửi request POST tới API FastAPI
+response = requests.post(url, json=data_contribiute)
+```
 
 # Hướng dẫn cài đặt ứng dụng với Docker
 
@@ -101,30 +137,36 @@ cd NLPCoupletsTranslation
 Sử dụng Dockerfile đã có sẵn để xây dựng Docker image cho ứng dụng của bạn:
 
 ```bash
-docker build -t han-nom-translation-app .
+docker build -t han-nom-translation-img .
 ```
 
-### 3. Chạy Container lần đầu tiên để tải dữ liệu
+### 3. Chạy Container
 
-Trong lần chạy đầu tiên, bạn nên chạy container với argument `--download-data` để Docker có thể tải về các models cần thiết cho ứng dụng:
+#### Chạy ứng dụng webapp
 
 ```bash
-docker run -it -p 127.0.0.1:8501:8501 --name han-nom-app han-nom-translation-app --download-data
+docker run --env-file app.env -it -p 8501:8501 -p 8000:8000 --name han-nom-app han-nom-translation-img
 ```
 
+- `--env-file app.env`: Dùng file environment app.env cho webapp.
 - `-it`: Chạy container ở chế độ tương tác.
-- `-p 127.0.0.1:8501:8501`: Mở cổng 8501 trên localhost để truy cập ứng dụng từ bên ngoài.
-- `han-nom-translation-app`: Tên của Docker image mà bạn đã xây dựng.
-- `--download-data`: Tùy chọn này sẽ tải về các models cần thiết cho ứng dụng.
+- `-p 8501:8501`: Mở cổng 8501 trên localhost để truy cập ứng dụng webapp từ bên ngoài.
+- `-p 8000:8000`: Mở cổng 8000 trên localhost để gọi api từ bên ngoài.
+- `han-nom-translation-img`: Tên của Docker image mà bạn đã xây dựng.
 - `--name han-nom-app`: Đặt tên cho container là han-nom-app.
 
-### 4. Chạy Container từ Docker Image (Những lần sau)
-
-Sau khi đã tải dữ liệu, bạn có thể chạy lại container mà không cần tùy chọn `--download-data`:
+#### Chạy translation service only
 
 ```bash
-docker run -d -p 127.0.0.1:8501:8501 --name han-nom-app han-nom-translation-app
+docker run --env-file api.env -it -p 8000:8000 --name han-nom-service han-nom-translation-img
 ```
+
+- `--env-file api.env`: Dùng file environment api.env cho service.
+- `-it`: Chạy container ở chế độ tương tác.
+- `-p 8000:8000`: Mở cổng 8000 trên localhost để gọi api từ bên ngoài.
+- `han-nom-translation-img`: Tên của Docker image mà bạn đã xây dựng.
+- `--name han-nom-service`: Đặt tên cho container là han-nom-service.
+
 
 ### 5. Kiểm tra trạng thái của Container
 
@@ -136,7 +178,7 @@ docker ps
 
 Lệnh này sẽ liệt kê tất cả các container đang chạy. Bạn sẽ thấy tên `han-nom-app` trong danh sách nếu container đã khởi động thành công.
 
-### 6. Truy cập ứng dụng
+### 6. Truy cập ứng dụng web app
 
 Mở trình duyệt và truy cập ứng dụng tại địa chỉ:
 
@@ -158,6 +200,11 @@ Thay đổi địa chỉ và cổng tùy theo cấu hình của bạn.
 
   ```bash
   docker stop han-nom-app
+  ```
+- **Start container:**
+
+  ```bash
+  docker start -a han-nom-app
   ```
 
 - **Xóa container:**
