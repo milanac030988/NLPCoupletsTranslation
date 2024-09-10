@@ -25,3 +25,4 @@ streamlit-authenticator
 torch==2.2.1
 transformers==4.40.0
 undetected-chromedriver==3.5.5
+uvicorn[standard]

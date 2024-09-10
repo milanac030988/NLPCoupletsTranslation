@@ -47,6 +47,7 @@ from src.data.download_data_models import download_data
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SOURCE = os.path.join(SCRIPT_DIR, 'src')
 MAIN_PAGE = os.path.join(SCRIPT_DIR, "src/gui/main_page.py")
+SERVICE_API_MANAGER = os.path.join(SCRIPT_DIR, "src/api/service_manager.py")
 DOWNLOAD_SCRIPT = os.path.join(SCRIPT_DIR, "src/data/download_data_models.py")
 
 if SOURCE not in sys.path:
@@ -63,7 +64,6 @@ def parse_arguments():
    # Define command-line arguments
    parser.add_argument('--download-data', action='store_true', default=False,  help="Cần download data về.")
    
-   
    # Parse the arguments
    args = parser.parse_args()
 
@@ -72,16 +72,15 @@ def parse_arguments():
 
 if __name__ == "__main__":
    print("start app translation")
-   args = parse_arguments()
-   if args.download_data:
-      # download_data_proc = subprocess.Popen(["python", DOWNLOAD_SCRIPT], shell=False, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      # output, error = download_data_proc.communicate()
-      # if download_data_proc.returncode != 0: 
-      #    print(f"Download data failed. Exit with code: {download_data_proc.returncode}")
-      #    exit()
-      download_data()
-
-   subprocess.Popen(['streamlit', 'run', MAIN_PAGE], env=env)
+   download_data()   
+   run_type = os.environ.get("RUNTYPE", "webapp")
+   
+   if run_type == "webapp":
+      web_app_port = os.environ.get("PORT", "8501")
+      web_app_address = os.environ.get("ADDRESS", "0.0.0.0")
+      subprocess.run(['streamlit', 'run', MAIN_PAGE, f"--server.address={web_app_address}", f"--server.port={web_app_port}"], env=env)
+   else:
+      subprocess.run(['python', SERVICE_API_MANAGER], env=env)
    # output, error = app_proc.communicate()
    # if app_proc.returncode != 0: 
    #    print(f"Exit with code: {app_proc.returncode}")

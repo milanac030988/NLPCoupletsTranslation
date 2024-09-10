@@ -15,6 +15,7 @@ ENV INTERMEDIATE_DATA_DIR="$SCRIPT_DIR/data/interim"
 ENV REFS_DIR="$SCRIPT_DIR/references"
 ENV MOSSES_DECODER="$SCRIPT_DIR/references/mossesdecoder"
 ENV MODELS_DIR="$SCRIPT_DIR/models"
+ENV PYTHONPATH="/app/src"
 
 
 # Sao chép file yêu cầu vào thư mục làm việc
@@ -43,6 +44,11 @@ COPY run.py /app/
 COPY setEnv.sh /app/
 COPY src/ /app/src
 COPY references/ /app/references
+
+# Mở cổng 8000 cho Uvicorn
+EXPOSE 8000
+# Mở cổng 8501 cho streamlit
+EXPOSE 8501
 
 # Lệnh để chạy ứng dụng của bạn (thay đổi tuỳ theo ứng dụng của bạn)
 ENTRYPOINT ["python3", "/app/run.py"]

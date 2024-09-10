@@ -67,17 +67,18 @@ class ServiceManager:
 # Example usage:
 if __name__ == "__main__":
     manager = ServiceManager()
+    manager.start_server()
 
-    while True:
-        cmd = input("Enter 'start' to start the server, 'stop' to stop the server, 'exit' to quit: ")
+    # while True:
+    #     cmd = input("Enter 'start' to start the server, 'stop' to stop the server, 'exit' to quit: ")
 
-        if cmd == "start":
-            manager.start_server()
-        elif cmd == "stop":
-            manager.stop_server()
-        elif cmd == "exit":
-            if manager.process is not None:
-                manager.stop_server()
-            break
-        else:
-            print("Invalid command.")
+    #     if cmd == "start":
+    #         manager.start_server()
+    #     elif cmd == "stop":
+    #         manager.stop_server()
+    #     elif cmd == "exit":
+    #         if manager.process is not None:
+    #             manager.stop_server()
+    #         break
+    #     else:
+    #         print("Invalid command.")
