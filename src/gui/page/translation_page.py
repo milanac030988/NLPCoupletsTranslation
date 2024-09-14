@@ -16,30 +16,6 @@ st.set_page_config(layout="wide")
 st.title("Dịch câu đối Hán sang chữ Quốc ngữ hiện đại")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# def load_all_trans_supported_method():
-#    all_libs = [TranslateMethod.SCRIPT_DIR]
-#    # sys.path.extend(all_libs)
-#    for module_loader, name, is_pkg in pkgutil.walk_packages(all_libs):
-#       # noinspection PyBroadException
-#       try:
-#          # print(name)
-#          if not is_pkg and not name.startswith("setup") and "translation_method" in name:
-#             importlib.import_module("features.translate." + name)
-#          elif "translation_method" in name:
-#             _module = module_loader.find_module(name).load_module(name)
-#       except Exception as _ex:
-#          print(_ex)
-#          pass
-
-#    supported_translation_method_list = Utils.get_all_descendant_classes(TranslateMethod)
-#       #   self.translation_methods = {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
-#    return {cls._TRANSLATION_METHOD: cls for cls in supported_translation_method_list}
-
-# with server_state_lock["translation_methods"]:  # Lock the "count" state for thread-safety
-#     if "translation_methods" not in server_state:
-#         server_state.translation_methods = load_all_trans_supported_method()
-#         print(f"translate method list: {server_state.translation_methods.keys()}")
-#         server_state.translation_methods_instance = {}
 
 # Khởi tạo session state cho lựa chọn hiện tại nếu chưa có
 if 'translation_manager' not in st.session_state:
