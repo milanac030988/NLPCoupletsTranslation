@@ -223,6 +223,24 @@ Thay đổi địa chỉ và cổng tùy theo cấu hình của bạn.
 
 - [Tài liệu Docker](https://docs.docker.com/)
 
+## Các vấn đề đã biết trong quá trình chạy
+
+### Vấn đề với GLIBCXX_3.4.29
+#### Lỗi:
+```
+/usr/lib/x86_64-linux-gnu/libstdc++.so.6: version GLIBCXX_3.4.29 not found
+```
+
+#### Giải pháp:
+Cập nhật libstdc bằng commands sau:
+
+```bash
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt-get update
+sudo apt-get upgrade libstdc++6
+```
+
+
 ## Đóng góp
 
 Nếu bạn muốn đóng góp vào dự án này, vui lòng tạo Pull Request hoặc mở Issues mới trên GitHub.
