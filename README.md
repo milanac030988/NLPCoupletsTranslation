@@ -1,8 +1,8 @@
-# Ứng dụng dịch hoành phi câu đối Hán sang chữ Quốc ngữ hiện đại
+# Ứng dụng dịch hoành phi câu đối Hán sang chữ Quốc ngữ
 
 ## Giới thiệu
 
-Chào mừng bạn đến với dự án "Ứng dụng dịch hoành phi câu đối Hán sang chữ Quốc ngữ hiện đại"! Đây là một công cụ hữu ích giúp chuyển đổi các hoành phi câu đối Hán sang chữ Quốc ngữ hiện đại. Ứng dụng này không chỉ giúp bảo tồn và phổ biến văn hóa truyền thống mà còn hỗ trợ việc nghiên cứu và giảng dạy văn học cổ điển Việt Nam. Với giao diện thân thiện và dễ sử dụng, ứng dụng này mang lại trải nghiệm dịch thuật nhanh chóng và chính xác, phù hợp với nhu cầu của cả người học lẫn các chuyên gia trong lĩnh vực.
+Chào mừng bạn đến với dự án "Ứng dụng dịch hoành phi câu đối Hán sang chữ Quốc ngữ"! Đây là một công cụ hữu ích giúp chuyển đổi các hoành phi câu đối Hán sang chữ Quốc ngữ hiện đại. Ứng dụng này không chỉ giúp bảo tồn và phổ biến văn hóa truyền thống mà còn hỗ trợ việc nghiên cứu và giảng dạy văn học cổ điển Việt Nam. Với giao diện thân thiện và dễ sử dụng, ứng dụng này mang lại trải nghiệm dịch thuật nhanh chóng và chính xác, phù hợp với nhu cầu của cả người học lẫn các chuyên gia trong lĩnh vực.
 
 ## Tính năng
 
@@ -110,6 +110,7 @@ Vẻ đào tơ nay chỉ quân phù."""
 # Gửi request POST tới API FastAPI
 response = requests.post(url, json=data_contribiute)
 ```
+
 # Hướng dẫn Train Data
 
 ## Train mô hình Transformer
@@ -161,7 +162,8 @@ Trong đó:
 - `-alignment grow-diag-final-and`: chỉ định phương pháp căn chỉnh.
 - `-reordering msd-bidirectional-fe`: chỉ định kiểu sắp xếp lại.
 - `-lm 0:3:/path/to/lm.arpa`: chỉ định mô hình ngôn ngữ (thư mục kenlm).
-- `-external-bin-dir $GIZA/bin: chỉ định thư mục của MGIZA.
+- `-external-bin-dir $GIZA/bin`: chỉ định thư mục của MGIZA.
+
 
 # Hướng dẫn cài đặt ứng dụng với Docker
 
@@ -270,14 +272,14 @@ Thay đổi địa chỉ và cổng tùy theo cấu hình của bạn.
   ```bash
   docker rmi han-nom-translation-app
   ```
-
 ## Tham khảo thêm
 
 - [Tài liệu Docker](https://docs.docker.com/)
 
+  
 ## Các vấn đề đã biết trong quá trình chạy
 
-### Vấn đề với GLIBCXX_3.4.29
+### 1. Vấn đề với GLIBCXX_3.4.29
 #### Lỗi:
 ```
 /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version GLIBCXX_3.4.29 not found
@@ -292,6 +294,14 @@ sudo apt-get update
 sudo apt-get upgrade libstdc++6
 ```
 
+### 2. Vấn đề khi download tự động models
+
+Khi download tự động model cho Translation service gặp vấn đề, bạn có thể làm theo các giải pháp sau:
+
+#### Giải pháp:
+1. Tải model trực tiếp từ link [https://bit.ly/nlp_couplets_translate_model](https://bit.ly/nlp_couplets_translate_model), sau đó giải nén và copy vào thư mục `Han_Nom_Dich/models`. ( Nếu không thể access bit.ly có thể download từ [Onedrive](https://1drv.ms/u/s!AsPE3hpNPVT3zUwLsJ062x3coIXh))
+
+2. Bỏ qua bước download tự động bằng cách comment out dòng 37: `download_data()` trong file `run.py`.
 
 ## Đóng góp
 
