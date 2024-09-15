@@ -110,6 +110,58 @@ Vẻ đào tơ nay chỉ quân phù."""
 # Gửi request POST tới API FastAPI
 response = requests.post(url, json=data_contribiute)
 ```
+# Hướng dẫn Train Data
+
+## Train mô hình Transformer
+
+Chạy lệnh sau để train mô hình Transformer:
+
+```bash
+python src/models/train_transformer.py
+```
+
+## Train mô hình Moses
+
+### 1. Cài đặt Moses
+Để cài đặt Moses, chạy các lệnh sau:
+
+```bash
+sudo apt-get install build-essential
+sudo apt-get install cmake
+sudo apt-get install git-core
+sudo apt-get install zlib1g-dev libbz2-dev libboost-all-dev
+
+git clone https://github.com/moses-smt/mosesdecoder.git
+cd mosesdecoder
+./bjam -j4
+```
+### 2. Tạo working directory
+Tạo thư mục làm việc và chuyển vào thư mục này:
+```bash
+mkdir working-dir
+cd working-dir
+```
+### 3. Cài đặt MGIZA alignment tools và kenlm
+- Làm theo hướng dẫn cài đặt MGIZA alignment tools tại link: [Cài đặt MGIZA](https://hovinh.github.io/blog/2016-04-29-install-mgiza-ubuntu/)
+- Làm theo hướng dẫn compile kenlm tại [kenlm](https://github.com/kpu/kenlm)
+
+### 4. Chuẩn bị dữ liệu Corpus
+Copy các file corpus dvsktt_corpus.hanzi và dvsktt_corpus.vietnamese trong \data\processed đến thư mục làm việc (working-dir).
+
+### 5. Train mô hình Moses
+Chạy lệnh sau để train mô hình Moses:
+```bash
+$MOSES/scripts/training/train-model.perl -root-dir train -corpus dvsktt_corpus -f hanzi -e vietnamese -alignment grow-diag-final-and -reordering msd-bidirectional-fe -lm 0:3:/path/to/lm.arpa -external-bin-dir $GIZA/bin
+
+```
+Trong đó:
+
+- `-corpus dvsktt_corpus`: chỉ định tên corpus.
+- `-f hanzi -e vietnamese`: chỉ định ngôn ngữ nguồn (hanzi) và ngôn ngữ đích (vietnamese).
+- `-alignment grow-diag-final-and`: chỉ định phương pháp căn chỉnh.
+- `-reordering msd-bidirectional-fe`: chỉ định kiểu sắp xếp lại.
+- `-lm 0:3:/path/to/lm.arpa`: chỉ định mô hình ngôn ngữ (thư mục kenlm).
+- `-external-bin-dir $GIZA/bin: chỉ định thư mục của MGIZA.
 
 # Hướng dẫn cài đặt ứng dụng với Docker
 
