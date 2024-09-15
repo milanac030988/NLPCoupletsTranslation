@@ -13,7 +13,7 @@ from streamlit_server_state import server_state, server_state_lock
 st.set_page_config(layout="wide")
 
 # Tiêu đề của ứng dụng
-st.title("Dịch câu đối Hán sang chữ Quốc ngữ hiện đại")
+st.title("Dịch câu đối Hán sang chữ Quốc ngữ")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -142,7 +142,7 @@ if translate_button:
         # Cập nhật kết quả dịch vào text area
       with col3:
          output_text1_placeholder.text_area("Phiên âm Hán Việt", value=formatted_sv_translation, height=150, disabled=True)
-         output_text2_placeholder.text_area("Diễn nghĩa", value=formatted_vi_translation, height=150, disabled=True)
+         output_text2_placeholder.text_area("Dịch nghĩa", value=formatted_vi_translation, height=150, disabled=True)
 
       st.session_state.translation_query = st.session_state.query
 
